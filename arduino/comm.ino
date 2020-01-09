@@ -4,6 +4,11 @@
 #include <SoftwareSerial.h>
 SoftwareSerial button(12, 13);
 
+int b = 2;
+int c = 2;
+int d = 2;
+int e = 2;
+
 void setup()
 {
     pinMode(2, OUTPUT);
@@ -27,6 +32,32 @@ void loop()
         data_serial = button.read();
         Serial.write(data_serial);
         data_serial = 0;
+    }
+    int a;
+    char data;
+    a = digitalRead(3);
+    if (a != b) {
+        b = a;
+        data = 23;
+        Serial.write(data);
+    }
+    a = digitalRead(4);
+    if (a != c) {
+        c = a;
+        data = 24;
+        Serial.write(data);
+    }
+    a = digitalRead(5);
+    if (a != d) {
+        d = a;
+        data = 25;
+        Serial.write(data);
+    }
+    a = digitalRead(6);
+    if (a != e) {
+        e = a;
+        data = 26;
+        Serial.write(data);
     }
 }
 
