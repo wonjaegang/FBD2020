@@ -1,4 +1,4 @@
-//upload this on the Arduino which gets carriers' buttons 
+//upload this on the Arduino which gets cars' buttons 
 
 //this Arduino only uses I2C communication
 
