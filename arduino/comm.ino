@@ -36,7 +36,7 @@ void loop()
     if (button.available() > 0) {
         //if there is a signal with SoftwareSerial communication
         data_serial = button.read();    //read the data by SoftwareSerial communication
-        Serial.write(data_serial);      //send the data to PC
+        Serial.println(data_serial);      //send the data to PC
         data_serial = 0;    
     }
     int a;  //get switch status
@@ -46,28 +46,28 @@ void loop()
         //if the status of switch is changed
         b = a;  //save new status
         data = 23;  
-        Serial.write(data); //send the data to PC
+        Serial.println(data); //send the data to PC
     }
     a = digitalRead(3);
     if (a != c) {
         //if the status of switch is changed
         c = a;  //save new status
         data = 24;
-        Serial.write(data); //send the data to PC
+        Serial.println(data); //send the data to PC
     }
     a = digitalRead(4);
     if (a != d) {
         //if the status of switch is changed
         d = a;  //save new status
         data = 25;
-        Serial.write(data); //send the data to PC
+        Serial.println(data); //send the data to PC
     }
     a = digitalRead(5);
     if (a != e) {
         //if the status of switch is changed
         e = a;  //save new status
         data = 26;
-        Serial.write(data); //send the data to PC
+        Serial.println(data); //send the data to PC
     }
 }
 
@@ -76,6 +76,6 @@ void receiveFromMaster(int nByteNum)
     //if there is a call from I2C master device
     for (int i = 0; i < nByteNum; i++)
         data_i2c = Wire.read(); //read the data by I2C communication
-    Serial.write(data_i2c); //send the data to PC
+    Serial.println(data_i2c); //send the data to PC
     data_i2c = 0;
 }
