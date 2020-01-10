@@ -37,6 +37,19 @@ lc = [[False] * (Building.whole_floor + 1) for i in range(2)]
 cc = [[False] * 2 for k in range(Building.whole_floor)]
 
 
+# Check serial input
+def input():
+    import serial
+    ardu = serial.Serial(port='/dev/ttyUSB0',baudrate=9600)
+    # revise port's name for each PC after
+    if ardu.readable():
+        data = ardu.readline()
+        data = data.decode()
+    else:
+        data = '0'
+    return data
+
+
 # Function that converts button inputs to the Landing Calls and the Car Calls
 # It modifies global variables
 def input_to_call(button):
