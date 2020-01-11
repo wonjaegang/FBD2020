@@ -109,4 +109,20 @@ void loop()
         Wire.write(data); //send the data to other Arduino
         Wire.endTransmission();
     }
+    a = digitalRead(12);
+    if (a != state12) {
+        data = 'U';
+        state12 = a;
+        Wire.beginTransmission(Slave);
+        Wire.write(data); //send the data to other Arduino
+        Wire.endTransmission();
+    }
+    a = digitalRead(13);
+    if (a != state13) {
+        data = 'V';
+        state13 = a;
+        Wire.beginTransmission(Slave);
+        Wire.write(data); //send the data to other Arduino
+        Wire.endTransmission();
+    }
 }

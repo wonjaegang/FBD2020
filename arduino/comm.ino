@@ -38,16 +38,16 @@ void loop()
     char data;  //use 1 byte data for serial communication with PC
     a = digitalRead(2);
     if (a != state2) {
-        //if the status of switch is changed
-        b = a;  //save new status
-        data = 'U';  
+        //if the status of button is changed
+        state2 = a;  //save new status
+        data = 'W';  
         Serial.println(data); //send the data to PC
     }
     a = digitalRead(3);
     if (a != state3) {
-        //if the status of switch is changed
-        c = a;  //save new status
-        data = 'V';
+        //if the status of button is changed
+        state3 = a;  //save new status
+        data = 'X';
         Serial.println(data); //send the data to PC
     }
 }
