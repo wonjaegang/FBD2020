@@ -51,6 +51,7 @@ def input_to_call():
     if # elevator completes a work
         # using whatever such as location or other variable
         # changes global input 
+        check = True
     return check
 
 
@@ -71,8 +72,8 @@ while True:
     check = input_to_call()
     if check == True:
         commend = call_to_commend()
-        elevator1.commend(commend[0])
-        elevator2.commend(commend[1])
+    elevator1.commend(commend[0])
+    elevator2.commend(commend[1])
     # Print with certain format -> sent to GUI algorithm
     print(elevator1)
     print(elevator2)
