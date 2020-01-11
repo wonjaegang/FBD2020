@@ -29,61 +29,61 @@ void loop()
     char data;
     a = digitalRead(2);
     if (a != state2) {
-        data = 1;
+        data = 'A';
         state2=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(3);
     if (a != state3) {
-        data = 2;
+        data = 'B';
         state3=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(4);
     if (a != state4) {
-        data = 3;
+        data = 'C';
         state4=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(5);
     if (a != state5) {
-        data = 4;
+        data = 'D';
         state5=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(6);
     if (a != state6) {
-        data = 5;
+        data = 'E';
         state6=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(7);
     if (a != state7) {
-        data = 6;
+        data = 'F';
         state7=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(8);
     if (a != state8) {
-        data = 7;
+        data = 'G';
         state8=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(9);
     if (a != state9) {
-        data = 8;
+        data = 'H';
         state9=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(10);
     if (a != state10) {
-        data = 9;
+        data = 'I';
         state10=a;
         button.write(data);   //send the data to other Arduino
     }
     a = digitalRead(11);
     if (a != state11) {
-        data = 10;
+        data = 'J';
         state11=a;
         button.write(data);   //send the data to other Arduino
     }

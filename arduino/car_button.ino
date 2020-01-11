@@ -31,7 +31,7 @@ void loop()
     char data;
     a = digitalRead(2);
     if (a != state2) {
-        data = 11;
+        data = 'K';
         state2 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -39,7 +39,7 @@ void loop()
     }
     a = digitalRead(3);
     if (a != state3) {
-        data = 12;
+        data = 'L';
         state3 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -47,7 +47,7 @@ void loop()
     }
     a = digitalRead(4);
     if (a != state4) {
-        data = 13;
+        data = 'M';
         state4 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -55,7 +55,7 @@ void loop()
     }
     a = digitalRead(5);
     if (a != state5) {
-        data = 14;
+        data = 'N';
         state5 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -63,7 +63,7 @@ void loop()
     }
     a = digitalRead(6);
     if (a != state6) {
-        data = 15;
+        data = 'O';
         state6 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -71,7 +71,7 @@ void loop()
     }
     a = digitalRead(7);
     if (a != state7) {
-        data = 16;
+        data = 'P';
         state7 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -79,7 +79,7 @@ void loop()
     }
     a = digitalRead(8);
     if (a != state8) {
-        data = 17;
+        data = 'Q';
         state8 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -87,7 +87,7 @@ void loop()
     }
     a = digitalRead(9);
     if (a != state9) {
-        data = 18;
+        data = 'R';
         state9 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -95,7 +95,7 @@ void loop()
     }
     a = digitalRead(10);
     if (a != state10) {
-        data = 19;
+        data = 'S';
         state10 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino
@@ -103,7 +103,7 @@ void loop()
     }
     a = digitalRead(11);
     if (a != state11) {
-        data = 20;
+        data = 'T';
         state11 = a;
         Wire.beginTransmission(Slave);
         Wire.write(data); //send the data to other Arduino

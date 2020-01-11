@@ -11,17 +11,12 @@
 SoftwareSerial button(12, 13);  //SoftwareSerial pin
 
 //save the status of switch
-int b = 2;
-int c = 2;
-int d = 2;
-int e = 2;
+int state2 = 2, state3 = 2;
 
 void setup()
 {
-    pinMode(2, INPUT);  //switch input
-    pinMode(3, INPUT);  //switch input
-    pinMode(4, INPUT);  //switch input
-    pinMode(5, INPUT);  //switch input
+    pinMode(2, INPUT);  //button input
+    pinMode(3, INPUT);  //button input
     Wire.begin(Slave);  //begin I2C communication as I2C slave
     Wire.onReceive(receiveFromMaster);  //function for I2C call from master
     button.begin(9600); //begin SoftwareSerial communication, BPS:9600
@@ -42,31 +37,17 @@ void loop()
     int a;  //get switch status
     char data;  //use 1 byte data for serial communication with PC
     a = digitalRead(2);
-    if (a != b) {
+    if (a != state2) {
         //if the status of switch is changed
         b = a;  //save new status
-        data = 23;  
+        data = 'U';  
         Serial.println(data); //send the data to PC
     }
     a = digitalRead(3);
-    if (a != c) {
+    if (a != state3) {
         //if the status of switch is changed
         c = a;  //save new status
-        data = 24;
-        Serial.println(data); //send the data to PC
-    }
-    a = digitalRead(4);
-    if (a != d) {
-        //if the status of switch is changed
-        d = a;  //save new status
-        data = 25;
-        Serial.println(data); //send the data to PC
-    }
-    a = digitalRead(5);
-    if (a != e) {
-        //if the status of switch is changed
-        e = a;  //save new status
-        data = 26;
+        data = 'V';
         Serial.println(data); //send the data to PC
     }
 }
