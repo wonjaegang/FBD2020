@@ -37,26 +37,21 @@ lc = [[False] * (Building.whole_floor + 1) for i in range(2)]
 cc = [[False] * 2 for k in range(Building.whole_floor)]
 
 
-# Check serial input
-def input():
-    import serial
-    ardu = serial.Serial(port='/dev/ttyUSB0',baudrate=9600)
-    # revise port's name for each PC after
-    if ardu.readable():
-        data = ardu.readline()
-        data = data.decode()
-    else:
-        data = '0'
-    return data
-
-
 # Function that converts button inputs to the Landing Calls and the Car Calls
 # It modifies global variables
-def input_to_call(button):
-
-    # Need Algorithm
-
-    return 0
+def input_to_call():
+    check = False
+    import serial
+    ardu = serial.Serial(port='/dev/ttyUSB0',baudrate=9600)    # revise port's name for each PC after
+    if ardu.readable():     # If there is a button input
+        data = ardu.readline()
+        data = data.decode()
+        # using data variable, changes global input
+        check = True
+    if # elevator completes a work
+        # using whatever such as location or other variable
+        # changes global input 
+    return check
 
 
 # Main algorithm that converts the Landing Calls and the Car Calls to the motion of each elevator
@@ -73,14 +68,11 @@ def call_to_commend():
 elevator1 = Elevator(1, 0)
 elevator2 = Elevator(2, 0)
 while True:
-    # Temporary input. Parsing code will replace it.
-    button_input = input()
-    if button_input == '0':
-        break
-    input_to_call(button_input)
-    commend = call_to_commend()
-    elevator1.commend(commend[0])
-    elevator2.commend(commend[1])
+    check = input_to_call()
+    if check == True:
+        commend = call_to_commend()
+        elevator1.commend(commend[0])
+        elevator2.commend(commend[1])
     # Print with certain format -> sent to GUI algorithm
     print(elevator1)
     print(elevator2)
