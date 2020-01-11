@@ -1,4 +1,6 @@
 import decimal
+import serial
+from time import sleep
 
 
 # Class indicates specification of the building. Use decimal module to avoid floating point error
@@ -41,17 +43,16 @@ cc = [[False] * 2 for k in range(Building.whole_floor)]
 # It modifies global variables
 def input_to_call():
     check = False
-    import serial
-    ardu = serial.Serial(port='/dev/ttyUSB0',baudrate=9600)    # revise port's name for each PC after
+    ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600)    # revise port's name for each PC after
     if ardu.readable():     # If there is a button input
         data = ardu.readline()
         data = data.decode()
         # using data variable, changes global input
         check = True
-    if # elevator completes a work
+    # if elevator completes a work :
         # using whatever such as location or other variable
         # changes global input 
-        check = True
+        # check = True
     return check
 
 
@@ -68,12 +69,14 @@ def call_to_commend():
 # Make instances and initialize their id and initial position
 elevator1 = Elevator(1, 0)
 elevator2 = Elevator(2, 0)
+commend = ['s', 's']
 while True:
-    check = input_to_call()
-    if check == True:
+    call_change = input_to_call()
+    if call_change:
         commend = call_to_commend()
     elevator1.commend(commend[0])
     elevator2.commend(commend[1])
     # Print with certain format -> sent to GUI algorithm
     print(elevator1)
     print(elevator2)
+    sleep(0.1)
