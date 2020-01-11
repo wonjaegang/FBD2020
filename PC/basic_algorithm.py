@@ -46,8 +46,53 @@ def input_to_call():
     ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600)    # revise port's name for each PC after
     if ardu.readable():     # If there is a button input
         data = ardu.readline()
-        data = data.decode()
         # using data variable, changes global input
+        if data == b'A\r\n':
+            # turns to True 
+        else if data == b'B\r\n':
+            # turns to True
+        else if data == b'C\r\n':
+            # turns to True
+        else if data == b'D\r\n':
+            # turns to True
+        else if data == b'E\r\n':
+            # turns to True
+        else if data == b'F\r\n':
+            # turns to True
+        else if data == b'G\r\n':
+            # turns to True
+        else if data == b'H\r\n':
+            # turns to True
+        else if data == b'I\r\n':
+            # turns to True
+        else if data == b'J\r\n':
+            # turns to True
+        else if data == b'K\r\n':
+            # turns to True
+        else if data == b'L\r\n':
+            # turns to True
+        else if data == b'M\r\n':
+            # turns to True
+        else if data == b'N\r\n':
+            # turns to True
+        else if data == b'O\r\n':
+            # turns to True
+        else if data == b'Q\r\n':
+            # turns to True
+        else if data == b'R\r\n':
+            # turns to True
+        else if data == b'S\r\n':
+            # turns to True
+        else if data == b'T\r\n':
+            # turns to True
+        else if data == b'U\r\n':
+            # turns to True
+        else if data == b'V\r\n':
+            # turns to True
+        else if data == b'W\r\n':
+            # toggle True and False
+        else if data == b'X\r\n':
+            # toggle True and False
         check = True
     # if elevator completes a work :
         # using whatever such as location or other variable
