@@ -49,49 +49,49 @@ def input_to_call():
         # using data variable, changes global input
         if data == b'A\r\n':
             # turns to True 
-        else if data == b'B\r\n':
+        elif data == b'B\r\n':
             # turns to True
-        else if data == b'C\r\n':
+        elif data == b'C\r\n':
             # turns to True
-        else if data == b'D\r\n':
+        elif data == b'D\r\n':
             # turns to True
-        else if data == b'E\r\n':
+        elif data == b'E\r\n':
             # turns to True
-        else if data == b'F\r\n':
+        elif data == b'F\r\n':
             # turns to True
-        else if data == b'G\r\n':
+        elif data == b'G\r\n':
             # turns to True
-        else if data == b'H\r\n':
+        elif data == b'H\r\n':
             # turns to True
-        else if data == b'I\r\n':
+        elif data == b'I\r\n':
             # turns to True
-        else if data == b'J\r\n':
+        elif data == b'J\r\n':
             # turns to True
-        else if data == b'K\r\n':
+        elif data == b'K\r\n':
             # turns to True
-        else if data == b'L\r\n':
+        elif data == b'L\r\n':
             # turns to True
-        else if data == b'M\r\n':
+        elif data == b'M\r\n':
             # turns to True
-        else if data == b'N\r\n':
+        elif data == b'N\r\n':
             # turns to True
-        else if data == b'O\r\n':
+        elif data == b'O\r\n':
             # turns to True
-        else if data == b'Q\r\n':
+        elif data == b'Q\r\n':
             # turns to True
-        else if data == b'R\r\n':
+        elif data == b'R\r\n':
             # turns to True
-        else if data == b'S\r\n':
+        elif data == b'S\r\n':
             # turns to True
-        else if data == b'T\r\n':
+        elif data == b'T\r\n':
             # turns to True
-        else if data == b'U\r\n':
+        elif data == b'U\r\n':
             # turns to True
-        else if data == b'V\r\n':
+        elif data == b'V\r\n':
             # turns to True
-        else if data == b'W\r\n':
+        elif data == b'W\r\n':
             # toggle True and False
-        else if data == b'X\r\n':
+        elif data == b'X\r\n':
             # toggle True and False
         check = True
     # if elevator completes a work :
@@ -124,4 +124,6 @@ while True:
     # Print with certain format -> sent to GUI algorithm
     print(elevator1)
     print(elevator2)
+    print(lc)
+    print(cc)
     sleep(0.1)
