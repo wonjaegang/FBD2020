@@ -50,26 +50,25 @@ def input_to_call():
     check = False
     data = ardu.readline()
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
-    if int_data < cc_button_num:
-        cc_floor = (int_data + 1) // 2
-        cc_direction = (int_data + 1) % 2
-        cc[cc_floor][cc_direction] = True
-        check = True
-    elif int_data < cc_button_num + Building.whole_floor * 2:
-        lc_id = (int_data - cc_button_num) // Building.whole_floor
-        lc_floor = (int_data - cc_button_num) % Building.whole_floor
-        lc[lc_id][lc_floor] = True
-        check = True
-    elif int_data < cc_button_num + Building.whole_floor * 2 + 2:
-        open_id = int_data - (cc_button_num + Building.whole_floor * 2)
-        if lc[open_id][Building.whole_floor] == True:
-            lc[open_id][Building.whole_floor] = False
-        else:
-            lc[open_id][Building.whole_floor] = True
-        check = True
+    if int_data < 0:
+        print("there's a no input")
     else:
-        raise ValueError("Serial input is NOT proper")
-    print("Button Board says (", data, ") which means", int_data, "th button")
+        check = True
+        if int_data < cc_button_num:
+            cc_floor = (int_data + 1) // 2
+            cc_direction = (int_data + 1) % 2
+            cc[cc_floor][cc_direction] = True
+        elif int_data < cc_button_num + Building.whole_floor * 2:
+            lc_id = (int_data - cc_button_num) // Building.whole_floor
+            lc_floor = (int_data - cc_button_num) % Building.whole_floor
+            lc[lc_id][lc_floor] = True
+        elif int_data < cc_button_num + Building.whole_floor * 2 + 2:
+            open_id = int_data - (cc_button_num + Building.whole_floor * 2)
+            if lc[open_id][Building.whole_floor] == True:
+                lc[open_id][Building.whole_floor] = False
+            else:
+                lc[open_id][Building.whole_floor] = True
+        print("Button Board says (", data, ") which means", int_data, "th button")
     # if elevator completes a work :
         # using whatever such as location or other variable
         # changes global input 
