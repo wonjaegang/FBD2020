@@ -1,8 +1,7 @@
 import decimal
 import serial
-from time import sleep
-
 ardu = serial.Serial(port='COM6', baudrate=9600, timeout=0.1)    # revise port's name for each PC after
+
 
 # Class indicates specification of the building. Use decimal module to avoid floating point error
 # 0th floor is a basement floor
@@ -64,10 +63,7 @@ def input_to_call():
             lc[lc_id][lc_floor] = True
         elif int_data < cc_button_num + Building.whole_floor * 2 + 2:
             open_id = int_data - (cc_button_num + Building.whole_floor * 2)
-            if lc[open_id][Building.whole_floor] == True:
-                lc[open_id][Building.whole_floor] = False
-            else:
-                lc[open_id][Building.whole_floor] = True
+            lc[open_id][Building.whole_floor] = bool(1 - lc[open_id][Building.whole_floor])
         print("Button Board says (", data, ") which means", int_data, "th button")
     # if elevator completes a work :
         # using whatever such as location or other variable
@@ -78,7 +74,9 @@ def input_to_call():
 
 # Main algorithm that converts the Car Calls and the Landing Calls to the motion of each elevator
 # It uses global variables as arguments
-def call_to_commend():
+def call_to_commend(e1, e2):
+    print("Elevator1 location before commend : %f" % e1.location)
+    print("Elevator2 location before commend : %f" % e2.location)
 
     # Need Algorithm
 
@@ -93,7 +91,7 @@ commend = ['s', 's']
 while True:
     call_change = input_to_call()
     if call_change:
-        commend = call_to_commend()
+        commend = call_to_commend(elevator1, elevator2)
     elevator1.commend(commend[0])
     elevator2.commend(commend[1])
     # Print with certain format -> sent to GUI algorithm
@@ -102,3 +100,4 @@ while True:
     print("Elevator2 Landing call : ", lc[1])
     print(elevator1)
     print(elevator2)
+    print("=======================================")
