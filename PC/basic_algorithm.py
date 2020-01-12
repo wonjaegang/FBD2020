@@ -21,7 +21,7 @@ class Elevator:
         self.id_num = id_num
         self.location = location
 
-    def commend(self, motion):
+    def command(self, motion):
         if motion == 'u':
             if self.location == Building.highest_m:
                 raise IndexError("Elevator%d is on the highest floor" % self.id_num)
@@ -49,22 +49,30 @@ def input_to_call():
     check = False
     data = ardu.readline()
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
-    if int_data < 0:
-        print("there's a no input")
+    # If input data is None
+    if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
+        print("There is no button input")
+    # If there is an input data, assign it to Landing Call or Car Call
+    # If input data is NOT proper, raise assertion exception
     else:
+        assert (0 <= int_data < cc_button_num + Building.whole_floor * 2 + 2),\
+            "Input data is NOT proper. Input data(int) : %d" % int_data
         check = True
+        # If input data is Car Call
         if int_data < cc_button_num:
             cc_floor = (int_data + 1) // 2
             cc_direction = (int_data + 1) % 2
             cc[cc_floor][cc_direction] = True
+        # If input data is Landing Call - floor
         elif int_data < cc_button_num + Building.whole_floor * 2:
             lc_id = (int_data - cc_button_num) // Building.whole_floor
             lc_floor = (int_data - cc_button_num) % Building.whole_floor
             lc[lc_id][lc_floor] = True
-        elif int_data < cc_button_num + Building.whole_floor * 2 + 2:
+        # If input data is Landing Call - door open
+        else:
             open_id = int_data - (cc_button_num + Building.whole_floor * 2)
             lc[open_id][Building.whole_floor] = bool(1 - lc[open_id][Building.whole_floor])
-        print("Button Board says (", data, ") which means", int_data, "th button")
+        print("Button Board says (", data, ") which means %dth button" % int_data)
     # if elevator completes a work :
         # using whatever such as location or other variable
         # changes global input 
@@ -74,9 +82,9 @@ def input_to_call():
 
 # Main algorithm that converts the Car Calls and the Landing Calls to the motion of each elevator
 # It uses global variables as arguments
-def call_to_commend(e1, e2):
-    print("Elevator1 location before commend : %f" % e1.location)
-    print("Elevator2 location before commend : %f" % e2.location)
+def call_to_command(e1, e2):
+    print("Elevator1 location before command : %f" % e1.location)
+    print("Elevator2 location before command : %f" % e2.location)
 
     # Need Algorithm
 
@@ -87,13 +95,13 @@ def call_to_commend(e1, e2):
 # Make instances and initialize their id and initial position
 elevator1 = Elevator(1, 0)
 elevator2 = Elevator(2, 0)
-commend = ['s', 's']
+command = ['s', 's']
 while True:
     call_change = input_to_call()
     if call_change:
-        commend = call_to_commend(elevator1, elevator2)
-    elevator1.commend(commend[0])
-    elevator2.commend(commend[1])
+        command = call_to_command(elevator1, elevator2)
+    elevator1.command(command[0])
+    elevator2.command(command[1])
     # Print with certain format -> sent to GUI algorithm
     print("Car call : ", cc)
     print("Elevator1 Landing call : ", lc[0])
