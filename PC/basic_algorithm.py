@@ -62,7 +62,10 @@ def input_to_call():
         check = True
     elif int_data < cc_button_num + Building.whole_floor * 2 + 2:
         open_id = int_data - (cc_button_num + Building.whole_floor * 2)
-        lc[open_id][Building.whole_floor] = True
+        if lc[open_id][Building.whole_floor] == True:
+            lc[open_id][Building.whole_floor] = False
+        else:
+            lc[open_id][Building.whole_floor] = True
         check = True
     else:
         raise ValueError("Serial input is NOT proper")
