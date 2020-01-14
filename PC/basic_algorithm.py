@@ -16,23 +16,36 @@ class Building:
 
 class Elevator:
     speed = decimal.Decimal('0.1')  # 0.1m/loop
+    door_operating_time = 10  # loops that elevator should stay at arrived floor
 
-    def __init__(self, id_num, location):  # initialize instance
+    def __init__(self, id_num, location, v_direction):  # initialize instance
         self.id_num = id_num
         self.location = location
+        self.v_direction = v_direction
+        self.opening_sequence = 0
 
     def command(self, motion):
         if motion == 'u':
             if self.location == Building.highest_m:
                 raise IndexError("Elevator%d is on the highest floor" % self.id_num)
-            self.location += Elevator.speed
+            self.v_direction = 1
         elif motion == 'd':
             if self.location == Building.lowest_m:
                 raise IndexError("Elevator%d is on the lowest floor" % self.id_num)
-            self.location -= Elevator.speed
+            self.v_direction = -1
+        elif motion == 's':
+            self.v_direction = 0
+        self.location += Elevator.speed * self.v_direction
+
+    def door_open(self):
+        self.opening_sequence = Elevator.door_operating_time
+
+    def door_close(self):
+        self.opening_sequence -= 1
 
     def __str__(self):
-        return "Elevator{x} location : {y}m".format(x=self.id_num, y=self.location)
+        return "Elevator{x} Location : {y}m, Direction : {z}, Opening Sequence : {r}"\
+            .format(x=self.id_num, y=self.location, z=self.v_direction, r=self.opening_sequence)
 
 
 # Global variables
@@ -63,19 +76,19 @@ def input_to_call():
             cc_floor = (int_data + 1) // 2
             cc_direction = (int_data + 1) % 2
             cc[cc_floor][cc_direction] = True
-        # If input data is Landing Call - floor
+        # If input data is Landing Call : floor
         elif int_data < cc_button_num + Building.whole_floor * 2:
             lc_id = (int_data - cc_button_num) // Building.whole_floor
             lc_floor = (int_data - cc_button_num) % Building.whole_floor
             lc[lc_id][lc_floor] = True
-        # If input data is Landing Call - door open
+        # If input data is Landing Call : door open
         else:
             open_id = int_data - (cc_button_num + Building.whole_floor * 2)
             lc[open_id][Building.whole_floor] = bool(1 - lc[open_id][Building.whole_floor])
         print("Button Board says (", data, ") which means %dth button" % int_data)
     # if elevator completes a work :
-        # using whatever such as location or other variable
-        # changes global input 
+        # make corresponding call False
+        # e.door_open()
         # check = True
     return check
 
@@ -88,20 +101,30 @@ def call_to_command(e1, e2):
 
     # Need Algorithm
 
-    motion = ['d', 'u']  # example
+    motion = ['s', 'd']  # example
+    # raise exception when elevator tries to move with its door open
+    if e1.opening_sequence > 0 and motion[0] != 's':
+        raise ValueError("Elevator 1 tries to moved with its door open")
+    if e2.opening_sequence > 0 and motion[1] != 's':
+        raise ValueError("Elevator 2 tries to moved with its door open")
     return motion
 
 
 # Make instances and initialize their id and initial position
-elevator1 = Elevator(1, 0)
-elevator2 = Elevator(2, 0)
+elevator1 = Elevator(1, 0, 0)
+elevator2 = Elevator(2, 0, 0)
 command = ['s', 's']
 while True:
     call_change = input_to_call()
     if call_change:
         command = call_to_command(elevator1, elevator2)
+    # Codes that actually operate elevators
     elevator1.command(command[0])
     elevator2.command(command[1])
+    if elevator1.opening_sequence > 0:
+        elevator1.door_close()
+    if elevator2.opening_sequence > 0:
+        elevator2.door_close()
     # Print with certain format -> sent to GUI algorithm
     print("Car call : ", cc)
     print("Elevator1 Landing call : ", lc[0])
