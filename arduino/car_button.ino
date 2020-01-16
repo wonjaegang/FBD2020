@@ -40,7 +40,7 @@ void loop()
     }
     if (a == 0)
         state2 = 1;
-    
+
     a = digitalRead(3);
     if (a == 1 && state3 == 1) {
         data = 'L';
@@ -51,7 +51,7 @@ void loop()
     }
     if (a == 0)
         state3 = 1;
-    
+
     a = digitalRead(4);
     if (a == 1 && state4 == 1) {
         data = 'M';
@@ -62,7 +62,7 @@ void loop()
     }
     if (a == 0)
         state4 = 1;
-    
+
     a = digitalRead(5);
     if (a == 1 && state5 == 1) {
         data = 'N';
@@ -73,7 +73,7 @@ void loop()
     }
     if (a == 0)
         state5 = 1;
-    
+
     a = digitalRead(6);
     if (a == 1 && state6 == 1) {
         data = 'O';
@@ -84,7 +84,7 @@ void loop()
     }
     if (a == 0)
         state6 = 1;
-    
+
     a = digitalRead(7);
     if (a == 1 && state7 == 1) {
         data = 'P';
@@ -95,7 +95,7 @@ void loop()
     }
     if (a == 0)
         state7 = 1;
-    
+
     a = digitalRead(8);
     if (a == 1 && state8 == 1) {
         data = 'Q';
@@ -106,7 +106,7 @@ void loop()
     }
     if (a == 0)
         state8 = 1;
-    
+
     a = digitalRead(9);
     if (a == 1 && state9 == 1) {
         data = 'R';
@@ -117,7 +117,7 @@ void loop()
     }
     if (a == 0)
         state9 = 1;
-    
+
     a = digitalRead(10);
     if (a == 1 && state10 == 1) {
         data = 'S';
@@ -128,7 +128,7 @@ void loop()
     }
     if (a == 0)
         state10 = 1;
-    
+
     a = digitalRead(11);
     if (a == 1 && state11 == 1) {
         data = 'T';
@@ -139,7 +139,7 @@ void loop()
     }
     if (a == 0)
         state11 = 1;
-    
+
     a = digitalRead(12);
     if (a == 1 && state12 == 1) {
         data = 'U';
@@ -150,7 +150,7 @@ void loop()
     }
     if (a == 0)
         state12 = 1;
-    
+
     a = digitalRead(13);
     if (a == 1 && state13 == 1) {
         data = 'V';
