@@ -7,8 +7,8 @@ import pygame
 
 ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)    # revise port's name for each PC after
 
-SCREEN_WIDTH = 900
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 800
 SIZE = 100
 
 white = (255, 255, 255)
@@ -26,22 +26,30 @@ text_2 = font.render("2", True, white)
 text_3 = font.render("3", True, white)
 text_4 = font.render("4", True, white)
 text_5 = font.render("5", True, white)
+text_power = font.render("power: ", True, white)
+text_time = font.render("waiting time: ", True, white)
+text_button = font.render("E1  E2  up  down", True, white)
+text_name = font.render("FBD2020 Project", True, white)
+text_check = font.render("O", True, red)
 
-
-def print_building():
+def print_background():
     screen.fill(black)
-    pygame.draw.line(screen, white, [640, SIZE], [0, SIZE], 3)
-    pygame.draw.line(screen, white, [640, 2*SIZE], [0, 2*SIZE], 3)
-    pygame.draw.line(screen, white, [640, 3*SIZE], [0, 3*SIZE], 3)
-    pygame.draw.line(screen, white, [640, 4*SIZE], [0, 4*SIZE], 3)
-    pygame.draw.line(screen, white, [640, 5*SIZE], [0, 5*SIZE], 3)
-    pygame.draw.line(screen, white, [640, 6*SIZE], [0, 6*SIZE], 3)
-    screen.blit(text_B1, (500, 6*SIZE-30))
-    screen.blit(text_1, (500, 5*SIZE-30))
-    screen.blit(text_2, (500, 4*SIZE-30))
-    screen.blit(text_3, (500, 3*SIZE-30))
-    screen.blit(text_4, (500, 2*SIZE-30))
-    screen.blit(text_5, (500, SIZE-30))
+    pygame.draw.line(screen, white, [350, SIZE], [0, SIZE], 3)
+    pygame.draw.line(screen, white, [350, 2*SIZE], [0, 2*SIZE], 3)
+    pygame.draw.line(screen, white, [350, 3*SIZE], [0, 3*SIZE], 3)
+    pygame.draw.line(screen, white, [350, 4*SIZE], [0, 4*SIZE], 3)
+    pygame.draw.line(screen, white, [350, 5*SIZE], [0, 5*SIZE], 3)
+    pygame.draw.line(screen, white, [350, 6*SIZE], [0, 6*SIZE], 3)
+    screen.blit(text_B1, (300, 6*SIZE-30))
+    screen.blit(text_1, (300, 5*SIZE-30))
+    screen.blit(text_2, (300, 4*SIZE-30))
+    screen.blit(text_3, (300, 3*SIZE-30))
+    screen.blit(text_4, (300, 2*SIZE-30))
+    screen.blit(text_5, (300, SIZE-30))
+    screen.blit(text_power, (800, SIZE-30))
+    screen.blit(text_time, (800, 2*SIZE-30))
+    screen.blit(text_button, (400, 10))
+    screen.blit(text_name, (50, 750))
 
 
 # Class indicates specification of the building. Use decimal module to avoid floating point error
@@ -114,7 +122,9 @@ lc = [[False] * (Building.whole_floor + 1) for i in range(2)]
 cc_button_num = len(cc) * 2 - 2  # Except lowest down, highest up
 cc_before = copy.deepcopy(cc)
 lc_before = copy.deepcopy(lc)
-
+# calcute power consumption on watts, and waiting time on wtime
+watts=0
+wtime=0
 
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
@@ -184,16 +194,24 @@ while True:
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
     update_call(elevator1, elevator2)
-    # Print with certain format -> sent to GUI algorithm
-    print("Car call : ", cc)
-    print("Elevator1 Landing call : ", lc[0])
-    print("Elevator2 Landing call : ", lc[1])
-    print(elevator1)
-    print(elevator2)
-    print("=======================================")
+
     # GUI code
-    print_building()
-    pygame.draw.rect(screen, red, [100, 400 - elevator1.location * 40, 25, SIZE], 5)
-    pygame.draw.rect(screen, red, [300, 400 - elevator2.location * 40, 25, SIZE], 5)
-    # add lc, cc, power, time after
+    print_background()
+    watts_str=str(watts)
+    text_watts = font.render(watts_str, True, white)
+    time_str=str(wtime)
+    text_wtime = font.render(time_str, True, white)
+    screen.blit(text_watts, (950, SIZE-30))
+    screen.blit(text_wtime, (1050, 2*SIZE-30))
+    pygame.draw.rect(screen, red, [50, 400 - elevator1.location * 40, 40, SIZE], 5)
+    pygame.draw.rect(screen, red, [150, 400 - elevator2.location * 40, 40, SIZE], 5)
+    for i in range(len(lc)):
+        for j in range(len(lc[i])):
+            if lc[i][j]==True:
+                 screen.blit(text_check, (400 + i*57, 600 - j*SIZE-40))
+    for i in range(len(cc)):
+        for j in range(len(cc[i])):
+            if cc[i][j]==True:
+                 screen.blit(text_check, (514 + j*57, 600 - i*SIZE-40))
     pygame.display.update()
+
