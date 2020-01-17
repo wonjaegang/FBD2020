@@ -1,7 +1,45 @@
 import decimal
 import serial
-ardu = serial.Serial(port='COM6', baudrate=9600, timeout=0.1)    # revise port's name for each PC after
+import time
+import sys
+import pygame
 
+ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)    # revise port's name for each PC after
+
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 600
+SIZE = 100
+
+white = (255, 255, 255)
+black = (0, 0, 0)
+red = (255, 0, 0)
+
+pygame.init()
+pygame.display.set_caption("Pygame Test")
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+font = pygame.font.Font('freesansbold.ttf', 30)
+text_B1 = font.render("B1", True, white)
+text_1 = font.render("1", True, white)
+text_2 = font.render("2", True, white)
+text_3 = font.render("3", True, white)
+text_4 = font.render("4", True, white)
+text_5 = font.render("5", True, white)
+
+def print_building():
+    screen.fill(black)
+    pygame.draw.line(screen, white, [640, SIZE], [0, SIZE], 3)
+    pygame.draw.line(screen, white, [640, 2*SIZE], [0, 2*SIZE], 3)
+    pygame.draw.line(screen, white, [640, 3*SIZE], [0, 3*SIZE], 3)
+    pygame.draw.line(screen, white, [640, 4*SIZE], [0, 4*SIZE], 3)
+    pygame.draw.line(screen, white, [640, 5*SIZE], [0, 5*SIZE], 3)
+    pygame.draw.line(screen, white, [640, 6*SIZE], [0, 6*SIZE], 3)
+    screen.blit(text_B1, (500, 6*SIZE-30))
+    screen.blit(text_1, (500, 5*SIZE-30))
+    screen.blit(text_2, (500, 4*SIZE-30))
+    screen.blit(text_3, (500, 3*SIZE-30))
+    screen.blit(text_4, (500, 2*SIZE-30))
+    screen.blit(text_5, (500, SIZE-30))
 
 # Class indicates specification of the building. Use decimal module to avoid floating point error
 # 0th floor is a basement floor
@@ -125,7 +163,14 @@ while True:
         elevator1.door_close()
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
+    
     # Print with certain format -> sent to GUI algorithm
+    print_building()
+    pygame.draw.rect(screen, red, [100, 400 - elevator1.location * 40, 25, SIZE], 5)
+    pygame.draw.rect(screen, red, [300, 400 - elevator2.location * 40, 25, SIZE], 5)
+    # add lc, cc, power, time after 
+    pygame.display.update()
+
     print("Car call : ", cc)
     print("Elevator1 Landing call : ", lc[0])
     print("Elevator2 Landing call : ", lc[1])
