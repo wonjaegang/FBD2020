@@ -33,6 +33,7 @@ text_time = font.render("waiting time: ", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
+
 def print_background():
     screen.fill(white)
     pygame.draw.line(screen, black, [350, SIZE], [0, SIZE], 3)
@@ -100,6 +101,7 @@ class Elevator:
             self.command('d')
         elif self.destination[1] == "uncalled":
             self.command('s')
+        # when elevator arrived
         else:
             self.command('s')
             self.door_open()
@@ -123,9 +125,10 @@ lc = [[False] * (Building.whole_floor + 1) for i in range(2)]
 cc_button_num = len(cc) * 2 - 2  # Except lowest down, highest up
 cc_before = copy.deepcopy(cc)
 lc_before = copy.deepcopy(lc)
-# calcute power consumption on watts, and waiting time on wtime
-watts=0
-wtime=0
+# calculate power consumption on watts, and waiting time on wtime
+watts = 0
+wtime = 0
+
 
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
@@ -195,12 +198,15 @@ while True:
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
     update_call(elevator1, elevator2)
+    print(elevator1)
+    print(elevator2)
+    print("=" * 10)
 
     # GUI code
     print_background()
-    watts_str=str(watts)
+    watts_str = str(watts)
     text_watts = font.render(watts_str, True, black)
-    time_str=str(wtime)
+    time_str = str(wtime)
     text_wtime = font.render(time_str, True, black)
     screen.blit(text_watts, (950, SIZE-30))
     screen.blit(text_wtime, (1050, 2*SIZE-30))
@@ -208,21 +214,20 @@ while True:
     pygame.draw.rect(screen, grey, [170, 400 - elevator2.location * 40, 50, SIZE])
     for i in range(len(lc)):
         for j in range(len(lc[i])):
-            if lc[i][j]==True:
-                if j==6:
+            if lc[i][j]:
+                if j == 6:
                     pygame.draw.circle(screen, yellow, (410 + i*57, 700), 15)
                 else:    
                     pygame.draw.circle(screen, yellow, (410 + i*57, 600 - j*SIZE), 15)
             else:
-                if j==6:
+                if j == 6:
                     pygame.draw.circle(screen, black, (410 + i*57, 700), 15, 5)
                 else:
                     pygame.draw.circle(screen, black, (410 + i*57, 600 - j*SIZE), 15, 5)
     for i in range(len(cc)):
         for j in range(len(cc[i])):
-            if cc[i][j]==True:
+            if cc[i][j]:
                 pygame.draw.circle(screen, yellow, (540 + j*80, 600 - i*SIZE), 15)
             else:
                 pygame.draw.circle(screen, black, (540 + j*80, 600 - i*SIZE), 15, 5)
     pygame.display.update()
-
