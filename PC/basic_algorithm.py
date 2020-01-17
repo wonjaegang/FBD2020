@@ -15,6 +15,7 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 grey = (128, 128, 128)
+yellow = (255, 204, 0)
 
 pygame.init()
 pygame.display.set_caption("Pygame Test")
@@ -29,9 +30,8 @@ text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
 text_power = font.render("power: ", True, black)
 text_time = font.render("waiting time: ", True, black)
-text_button = font.render("E1  E2  up  down", True, black)
+text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
-text_check = font.render("O", True, red)
 
 def print_background():
     screen.fill(white)
@@ -209,10 +209,20 @@ while True:
     for i in range(len(lc)):
         for j in range(len(lc[i])):
             if lc[i][j]==True:
-                 screen.blit(text_check, (400 + i*57, 600 - j*SIZE-40))
+                if j==6:
+                    pygame.draw.circle(screen, yellow, (410 + i*57, 700), 15)
+                else:    
+                    pygame.draw.circle(screen, yellow, (410 + i*57, 600 - j*SIZE), 15)
+            else:
+                if j==6:
+                    pygame.draw.circle(screen, black, (410 + i*57, 700), 15, 5)
+                else:
+                    pygame.draw.circle(screen, black, (410 + i*57, 600 - j*SIZE), 15, 5)
     for i in range(len(cc)):
         for j in range(len(cc[i])):
             if cc[i][j]==True:
-                 screen.blit(text_check, (514 + j*57, 600 - i*SIZE-40))
+                pygame.draw.circle(screen, yellow, (540 + j*80, 600 - i*SIZE), 15)
+            else:
+                pygame.draw.circle(screen, black, (540 + j*80, 600 - i*SIZE), 15, 5)
     pygame.display.update()
 
