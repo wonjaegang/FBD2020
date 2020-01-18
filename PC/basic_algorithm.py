@@ -69,12 +69,14 @@ class Elevator:
     speed = decimal.Decimal('0.1')  # 0.1m/loop
     door_operating_time = 10  # loops that elevator should stay at arrived floor
 
-    def __init__(self, id_num, location, v_direction):  # initialize instance
+    def __init__(self, id_num, floor):  # initialize instance
         self.id_num = id_num
-        self.location = location
-        self.v_direction = v_direction
+        self.location = Building.floor_height * (floor - 1)
+        self.v_direction = 0
         self.opening_sequence = 0
-        self.destination = [location, "uncalled"]
+        self.destination_floor = floor
+        self.destination = [self.location, "uncalled"]
+        self.call_done = False
 
     def command(self, motion):
         if motion == 'u':
@@ -94,6 +96,7 @@ class Elevator:
         self.location += Elevator.speed * self.v_direction
 
     def move_to_destination(self, floor, call_type):
+        self.destination_floor = floor
         self.destination = [(floor - 1) * Building.floor_height, call_type]  # meter
         if self.location < self.destination[0]:
             self.command('u')
@@ -105,6 +108,7 @@ class Elevator:
         else:
             self.command('s')
             self.door_open()
+            self.call_done = True
 
     def door_open(self):
         self.opening_sequence = Elevator.door_operating_time
@@ -167,21 +171,43 @@ def call_to_command(e1, e2):
     print("Elevator1 location before command : %f" % e1.location)
     print("Elevator2 location before command : %f" % e2.location)
 
-    # Need Algorithm
-
     # MUST change call_type to "uncalled" after arrived
-    destination_call = [[2, "cc+"], [5, "lc"]]  # example
+    # example algorithm
+    e1_destination_call = [2, "cc0"]
+    e2_destination_call = [5, "lc"]
+    if e1.opening_sequence == 10:
+        e1_destination_call[1] = "uncalled"
+    if e2.opening_sequence == 10:
+        e2_destination_call[1] = "uncalled"
+
+    # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
+    # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
+    destination_call = [e1_destination_call, e2_destination_call]  # example
     return destination_call
 
 
 # Turn off calls if elevator arrived
-def update_call(e1, e2):
-    print(e1.location, e2.location)
+def update_call(e):
+    if e.call_done:
+        if e.destination[1][:2] == "cc":
+            if cc[e.destination_floor][int(e.destination[1][2])]:
+                cc[e.destination_floor][int(e.destination[1][2])] = False
+            else:
+                raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
+                                 e.destination)
+        elif e.destination[1][:2] == "lc":
+            if lc[e.id_num - 1][e.destination_floor]:
+                lc[e.id_num - 1][e.destination_floor] = False
+            else:
+                raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
+                                 e.destination)
+        e.call_done = False
 
 
 # Make instances and initialize their id and initial position
-elevator1 = Elevator(1, 0, 0)
-elevator2 = Elevator(2, 0, 0)
+# Elevator(id_num, floor)
+elevator1 = Elevator(1, 1)
+elevator2 = Elevator(2, 1)
 command = [[elevator1.location / Building.floor_height + 1, 0], [elevator2.location / Building.floor_height + 1, 0]]
 while True:
     input_to_call()
@@ -189,29 +215,34 @@ while True:
         command = call_to_command(elevator1, elevator2)
     cc_before = copy.deepcopy(cc)
     lc_before = copy.deepcopy(lc)
-    # Codes that actually operate elevators
+    # Codes that actually operate the elevators
     print(command[0][0], command[1][0])
-    elevator1.move_to_destination(command[0][0], command[0][1])
-    elevator2.move_to_destination(command[1][0], command[1][1])
+    # Close the door if it is opened
     if elevator1.opening_sequence > 0:
         elevator1.door_close()
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
-    update_call(elevator1, elevator2)
+    elevator1.move_to_destination(command[0][0], command[0][1])
+    elevator2.move_to_destination(command[1][0], command[1][1])
+    update_call(elevator1)
+    update_call(elevator2)
     print(elevator1)
     print(elevator2)
     print("=" * 10)
 
-    # GUI code
+    # GUI codes
     print_background()
+    # Display variables(time & watt)
     watts_str = str(watts)
     text_watts = font.render(watts_str, True, black)
     time_str = str(wtime)
     text_wtime = font.render(time_str, True, black)
     screen.blit(text_watts, (950, SIZE-30))
     screen.blit(text_wtime, (1050, 2*SIZE-30))
-    pygame.draw.rect(screen, grey, [30, 400 - elevator1.location * 40, 50, SIZE])
-    pygame.draw.rect(screen, grey, [170, 400 - elevator2.location * 40, 50, SIZE])
+    # Display two elevators
+    pygame.draw.rect(screen, grey, [30, int(400 - elevator1.location * 40), 50, SIZE])
+    pygame.draw.rect(screen, grey, [170, int(400 - elevator2.location * 40), 50, SIZE])
+    # Display button inputs
     for i in range(len(lc)):
         for j in range(len(lc[i])):
             if lc[i][j]:
