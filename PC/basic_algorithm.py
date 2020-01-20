@@ -7,20 +7,24 @@ import pygame
 
 ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)    # revise port's name for each PC after
 
+# define variables for GUI screen 
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 SIZE = 100
 
+# color data (R,G,B)
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 grey = (128, 128, 128)
 yellow = (255, 204, 0)
 
+# starts GUI screen
 pygame.init()
-pygame.display.set_caption("Pygame Test")
+pygame.display.set_caption("FBD:: Elevator Simulation")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# save the fonts and tests for GUI screen
 font = pygame.font.Font('freesansbold.ttf', 30)
 text_B1 = font.render("B1", True, black)
 text_1 = font.render("1", True, black)
@@ -34,6 +38,7 @@ text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
 
+# function for drawing background
 def print_background():
     screen.fill(white)
     pygame.draw.line(screen, black, [350, SIZE], [0, SIZE], 3)
@@ -261,11 +266,12 @@ while True:
                 pygame.draw.circle(screen, yellow, (540 + j*80, 600 - i*SIZE), 15)
             else:
                 pygame.draw.circle(screen, black, (540 + j*80, 600 - i*SIZE), 15, 5)
-    
+
+    #if there's a key input "ESC", quit the displaying
     for event in pygame.event.get():
         key_event = pygame.key.get_pressed()
         if key_event[pygame.K_ESCAPE]:   
             pygame.quit()
             sys.exit() 
-            
+
     pygame.display.update()
