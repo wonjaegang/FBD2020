@@ -261,4 +261,11 @@ while True:
                 pygame.draw.circle(screen, yellow, (540 + j*80, 600 - i*SIZE), 15)
             else:
                 pygame.draw.circle(screen, black, (540 + j*80, 600 - i*SIZE), 15, 5)
+    
+    for event in pygame.event.get():
+        key_event = pygame.key.get_pressed()
+        if key_event[pygame.K_ESCAPE]:   
+            pygame.quit()
+            sys.exit() 
+            
     pygame.display.update()
