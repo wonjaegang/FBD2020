@@ -245,8 +245,12 @@ while True:
     screen.blit(text_watts, (950, SIZE-30))
     screen.blit(text_wtime, (1050, 2*SIZE-30))
     # Display two elevators
-    pygame.draw.rect(screen, grey, [30, int(400 - elevator1.location * 40), 50, SIZE])
-    pygame.draw.rect(screen, grey, [170, int(400 - elevator2.location * 40), 50, SIZE])
+    
+    pygame.draw.rect(screen, grey, [30 - elevator1.opening_sequence * 2.5 , int(400 - elevator1.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [55 + elevator1.opening_sequence * 2.5 , int(400 - elevator1.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [170 - elevator2.opening_sequence * 2.5, int(400 - elevator2.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [195 + elevator2.opening_sequence * 2.5, int(400 - elevator2.location * 40), 25, SIZE])
+
     # Display button inputs
     for i in range(len(lc)):
         for j in range(len(lc[i])):
