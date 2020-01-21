@@ -1,6 +1,4 @@
 import decimal
-import time
-import copy
 import serial
 import sys
 import pygame
@@ -72,7 +70,7 @@ class Building:
 
 class Elevator:
     speed = decimal.Decimal('0.1')  # 0.1m/loop
-    door_operating_time = 10  # loops that elevator should stay at arrived floor
+    door_operating_time = 20  # loops that elevator should stay at arrived floor
 
     def __init__(self, id_num, floor):  # initialize instance
         self.id_num = id_num
@@ -132,8 +130,7 @@ class Elevator:
 cc = [[False] * 2 for k in range(Building.whole_floor)]
 lc = [[False] * (Building.whole_floor + 1) for i in range(2)]
 cc_button_num = len(cc) * 2 - 2  # Except lowest down, highest up
-cc_before = copy.deepcopy(cc)
-lc_before = copy.deepcopy(lc)
+run_main_algorithm = False
 # calculate power consumption on watts, and waiting time on wtime
 watts = 0
 wtime = 0
@@ -166,6 +163,8 @@ def input_to_call():
         else:
             open_id = int_data - (cc_button_num + Building.whole_floor * 2)
             lc[open_id][Building.whole_floor] = bool(1 - lc[open_id][Building.whole_floor])
+        global run_main_algorithm
+        run_main_algorithm = True
         print("Button Board says (", data, ") which means %dth button" % int_data)
     return 0
 
@@ -175,15 +174,16 @@ def input_to_call():
 def call_to_command(e1, e2):
     print("Elevator1 location before command : %f" % e1.location)
     print("Elevator2 location before command : %f" % e2.location)
-
+    # # # # # # # # # # # # # # # # # # # # # # # #
+    #                                             #
+    #         YOUR ALGORITHM STARTS HERE          #
+    #                                             #
+    # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
+
     # example algorithm
     e1_destination_call = [2, "cc0"]
     e2_destination_call = [5, "lc"]
-    if e1.opening_sequence == 10:
-        e1_destination_call[1] = "uncalled"
-    if e2.opening_sequence == 10:
-        e2_destination_call[1] = "uncalled"
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
@@ -206,6 +206,8 @@ def update_call(e):
             else:
                 raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
                                  e.destination)
+        global run_main_algorithm
+        run_main_algorithm = True
         e.call_done = False
 
 
@@ -216,24 +218,29 @@ elevator2 = Elevator(2, 1)
 command = [[elevator1.location / Building.floor_height + 1, 0], [elevator2.location / Building.floor_height + 1, 0]]
 while True:
     input_to_call()
-    if not(cc_before == cc and lc_before == lc):
+    if run_main_algorithm:
         command = call_to_command(elevator1, elevator2)
-    cc_before = copy.deepcopy(cc)
-    lc_before = copy.deepcopy(lc)
+    run_main_algorithm = False
+    # If elevator arrived, run main algorithm at next loop
+    if elevator1.opening_sequence == 1:
+        run_main_algorithm = True
+    if elevator2.opening_sequence == 1:
+        run_main_algorithm = True
+
     # Codes that actually operate the elevators
-    print(command[0][0], command[1][0])
-    # Close the door if it is opened
+    # Close the door if it is opened.
     if elevator1.opening_sequence > 0:
         elevator1.door_close()
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
     elevator1.move_to_destination(command[0][0], command[0][1])
     elevator2.move_to_destination(command[1][0], command[1][1])
+
     update_call(elevator1)
     update_call(elevator2)
     print(elevator1)
     print(elevator2)
-    print("=" * 10)
+    print("=" * 30)
 
     # GUI codes
     print_background()
@@ -246,10 +253,10 @@ while True:
     screen.blit(text_wtime, (1050, 2*SIZE-30))
     # Display two elevators
     
-    pygame.draw.rect(screen, grey, [30 - elevator1.opening_sequence * 2.5 , int(400 - elevator1.location * 40), 25, SIZE])
-    pygame.draw.rect(screen, grey, [55 + elevator1.opening_sequence * 2.5 , int(400 - elevator1.location * 40), 25, SIZE])
-    pygame.draw.rect(screen, grey, [170 - elevator2.opening_sequence * 2.5, int(400 - elevator2.location * 40), 25, SIZE])
-    pygame.draw.rect(screen, grey, [195 + elevator2.opening_sequence * 2.5, int(400 - elevator2.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [30 - elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [55 + elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [170 - elevator2.opening_sequence, int(400 - elevator2.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [195 + elevator2.opening_sequence, int(400 - elevator2.location * 40), 25, SIZE])
 
     # Display button inputs
     for i in range(len(lc)):
@@ -271,7 +278,7 @@ while True:
             else:
                 pygame.draw.circle(screen, black, (540 + j*80, 600 - i*SIZE), 15, 5)
 
-    #if there's a key input "ESC", quit the displaying
+    # If there's a key input "ESC", quit the displaying
     for event in pygame.event.get():
         key_event = pygame.key.get_pressed()
         if key_event[pygame.K_ESCAPE]:   
