@@ -215,7 +215,8 @@ def update_call(e):
 # Elevator(id_num, floor)
 elevator1 = Elevator(1, 1)
 elevator2 = Elevator(2, 1)
-command = [[elevator1.location / Building.floor_height + 1, 0], [elevator2.location / Building.floor_height + 1, 0]]
+command = [[elevator1.location / Building.floor_height + 1, "uncalled"],
+           [elevator2.location / Building.floor_height + 1, "uncalled"]]
 while True:
     input_to_call()
     if run_main_algorithm:
