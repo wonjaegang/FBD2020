@@ -134,6 +134,7 @@ run_main_algorithm = False
 # calculate power consumption on watts, and waiting time on wtime
 watts = 0
 wtime = 0
+count = 0
 
 
 # Function that converts button inputs to the Car Calls and the Landing Calls
@@ -287,3 +288,4 @@ while True:
             sys.exit() 
 
     pygame.display.update()
+    count = count + 1
