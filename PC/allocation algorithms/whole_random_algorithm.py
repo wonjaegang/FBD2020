@@ -144,7 +144,7 @@ def input_to_call():
     #data = ardu.readline()
     data = b''
     if count == 10:
-        data = b'K\r\n'
+        data = b'J\r\n'
 
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
@@ -187,9 +187,18 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
-    # example algorithm
-    e1_destination_call = [5, "uncalled"]
-    e2_destination_call = [5, "uncalled"]
+    car_calls = []
+    landing_calls = [[], []]
+    for floor in range(Building.whole_floor):
+        for call_type in range(2):
+            if cc[floor][call_type]:
+                car_calls.append([floor, "cc" + str(call_type)])
+    for id_num in range(2):
+        for floor in range(Building.whole_floor):
+            if lc[id_num][floor]:
+                landing_calls[id_num].append([floor, "lc"])
+    e1_destination_call = car_calls[0]
+    e2_destination_call = car_calls[0]
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
