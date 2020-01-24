@@ -187,23 +187,13 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
-    car_calls = []
-    landing_calls = [[], []]
-    for floor in range(Building.whole_floor):
-        for call_type in range(2):
-            if cc[floor][call_type]:
-                car_calls.append([floor, "cc" + str(call_type)])
-    for id_num in range(2):
-        for floor in range(Building.whole_floor):
-            if lc[id_num][floor]:
-                landing_calls[id_num].append([floor, "lc"])
-    e1_destination_call = car_calls[0]
-    e2_destination_call = car_calls[0]
+    e1_destination_call = [5, lc]
+    e2_destination_call = [2, cc]
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
     destination_call = [e1_destination_call, e2_destination_call]  # example
-    print(destination_call)
+    
     return destination_call
 
 
