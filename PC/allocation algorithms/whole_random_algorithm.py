@@ -2,6 +2,7 @@ import decimal
 # import serial
 import sys
 import pygame
+import random
 import time
 
 #ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
@@ -33,6 +34,7 @@ text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
 text_power = font.render("power: ", True, black)
 text_time = font.render("waiting time: ", True, black)
+text_loop_count = font.render("loop count: ", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
@@ -54,6 +56,7 @@ def print_background():
     screen.blit(text_5, (300, SIZE - 30))
     screen.blit(text_power, (800, SIZE - 30))
     screen.blit(text_time, (800, 2 * SIZE - 30))
+    screen.blit(text_loop_count, (800, 3 * SIZE - 30))
     screen.blit(text_button, (400, 10))
     screen.blit(text_name, (50, 750))
 
@@ -101,10 +104,10 @@ class Elevator:
 
     def move_to_destination(self, floor, call_type):
         self.destination_floor = floor
-        self.destination = [(floor - 1) * Building.floor_height, call_type]  # meter
-        if self.location < self.destination[0]:
+        self.destination = [floor, call_type]
+        if self.location < (floor - 1) * Building.floor_height:
             self.command('u')
-        elif self.location > self.destination[0]:
+        elif self.location > (floor - 1) * Building.floor_height:
             self.command('d')
         elif self.destination[1] == "uncalled":
             self.command('s')
@@ -121,7 +124,7 @@ class Elevator:
         self.opening_sequence -= 1
 
     def __str__(self):
-        return "Elevator{x} Location : {y}m, Direction : {z}, Opening Sequence : {r}, Destination(m) : {a}" \
+        return "Elevator{x} Location : {y}m, Direction : {z}, Opening Sequence : {r}, Destination floor : {a}" \
             .format(x=self.id_num, y=self.location, z=self.v_direction, r=self.opening_sequence, a=self.destination)
 
 
@@ -145,6 +148,12 @@ def input_to_call():
     data = b''
     if count == 10:
         data = b'J\r\n'
+    if count == 11:
+        data = b'Q\r\n'
+    if count == 12:
+        data = b'D\r\n'
+    if count == 40:
+        data = b'D\r\n'
 
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
@@ -185,21 +194,36 @@ def call_to_command(e1, e2):
     #         YOUR ALGORITHM STARTS HERE          #
     #                                             #
     # # # # # # # # # # # # # # # # # # # # # # # #
-    # MUST change call_type to "uncalled" after arrived
-
-    car_calls = []
-    landing_calls = [[], []]
+    #
+    # Whole random algorithm :
+    #               allocate random call among lc1 & cc to elevator1, among lc2 & cc to elevator2
+    #
+    calls = [[], []]  # [[e1 calls], [e2 calls]]
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
-                car_calls.append([floor, "cc" + str(call_type)])
+                for id_num in range(2):
+                    calls[id_num].append([floor, "cc" + str(call_type)])
     for id_num in range(2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
-                landing_calls[id_num].append([floor, "lc"])
-    e1_destination_call = car_calls[0]
-    e2_destination_call = car_calls[0]
+                calls[id_num].append([floor, "lc"])
 
+    # 문이 열리는 도중에 들어온 같은 층의 콜을 어떻게 처리할지 랜덤이 아닌 다른 코드에선 고려해야함
+    if len(calls[0]) == 0:
+        e1_destination_call = [e1.destination_floor, "uncalled"]
+    else:
+        e1_destination_call = random.choice(calls[0])
+        if e1.opening_sequence > 0:
+            e1_destination_call = [e1.destination_floor, "uncalled"]
+    if e1_destination_call in calls[1]:
+        calls[1].remove(e1_destination_call)
+    if len(calls[1]) == 0:
+        e2_destination_call = [e2.destination_floor, "uncalled"]
+    else:
+        e2_destination_call = random.choice(calls[1])
+        if e2.opening_sequence > 0:
+            e2_destination_call = [e2.destination_floor, "uncalled"]
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
     destination_call = [e1_destination_call, e2_destination_call]  # example
@@ -229,7 +253,7 @@ def update_call(e):
 
 
 def update_evaluation_factor():
-    true_num=0
+    true_num = 0
     for i in range(len(cc)):  # cc true
         for j in range(len(cc[i])):
             if cc[i][j]:
@@ -250,6 +274,7 @@ command = [[elevator1.location / Building.floor_height + 1, "uncalled"],
 while True:
     input_to_call()
     if run_main_algorithm:
+        print("run allocation algorithm")
         command = call_to_command(elevator1, elevator2)
     run_main_algorithm = False
     # If elevator arrived, run main algorithm at next loop
@@ -281,8 +306,11 @@ while True:
     text_watts = font.render(watts_str, True, black)
     time_str = str(round(wtime, 3))
     text_wtime = font.render(time_str, True, black)
+    count_str = str(count)
+    text_count = font.render(count_str, True, black)
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))
+    screen.blit(text_count, (1050, 3 * SIZE - 30))
     # Display two elevators
 
     pygame.draw.rect(screen, grey, [30 - elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
