@@ -275,9 +275,10 @@ while True:
     elevator1.move_to_destination(command[0][0], command[0][1])
     elevator2.move_to_destination(command[1][0], command[1][1])
 
-    wtime = wtime + w_time()
+
     update_call(elevator1)
     update_call(elevator2)
+    wtime = wtime + w_time()
     print(elevator1)
     print(elevator2)
     print("=" * 30)
