@@ -213,7 +213,7 @@ def update_call(e):
 
 
 def update_evaluation_factor():
-    true_num=0
+    true_num = 0
     for i in range(len(cc)):  # cc true
         for j in range(len(cc[i])):
             if cc[i][j]:
@@ -263,7 +263,7 @@ while True:
     # Display variables(time & watt)
     watts_str = str(watts)
     text_watts = font.render(watts_str, True, black)
-    time_str = str(round(wtime,3))
+    time_str = str(round(wtime, 3))
     text_wtime = font.render(time_str, True, black)
     screen.blit(text_watts, (950, SIZE-30))
     screen.blit(text_wtime, (1050, 2*SIZE-30))
