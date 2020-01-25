@@ -211,7 +211,8 @@ def update_call(e):
         run_main_algorithm = True
         e.call_done = False
 
-def w_time():
+
+def update_evaluation_factor():
     true_num=0
     for i in range(len(cc)):  # cc true
         for j in range(len(cc[i])):
@@ -222,6 +223,7 @@ def w_time():
             if lc[i][j]:
                 true_num += 1
     return true_num * 0.1
+
 
 # Make instances and initialize their id and initial position
 # Elevator(id_num, floor)
@@ -251,7 +253,7 @@ while True:
 
     update_call(elevator1)
     update_call(elevator2)
-    wtime = wtime + w_time()
+    wtime = wtime + update_evaluation_factor()
     print(elevator1)
     print(elevator2)
     print("=" * 30)
