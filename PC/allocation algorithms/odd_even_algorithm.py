@@ -133,8 +133,9 @@ lc = [[False] * (Building.whole_floor + 1) for i in range(2)]
 cc_button_num = len(cc) * 2 - 2  # Except lowest down, highest up
 run_main_algorithm = False
 # calculate power consumption on watts, and waiting time on wtime
+
 watts = 0
-wtime = 0
+
 count = 0
 
 
@@ -188,7 +189,7 @@ def call_to_command(e1, e2):
     # MUST change call_type to "uncalled" after arrived
 
     car_calls = []
-    landing_calls = [[], []]
+    landing_calls = []
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
@@ -197,8 +198,13 @@ def call_to_command(e1, e2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
                 landing_calls[id_num].append([floor, "lc"])
-    e1_destination_call = car_calls[0]
-    e2_destination_call = car_calls[0]
+    e1_destination_call=[e1.destination_floor, e1.destination[1]]
+    e2_destination_call=[e2.destination_floor, e2.destination[1]]
+    for i in range (len(car_calls)):
+        if car_calls[i][0] == 2 or car_calls[i][0] == 4:
+            e1_destination_call = car_calls[i]
+        if car_calls[i][0] == 3 or car_calls[i][0] == 5:
+            e2_destination_call = car_calls[i]
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
@@ -209,6 +215,7 @@ def call_to_command(e1, e2):
 
 # Turn off calls if elevator arrived
 def update_call(e):
+
     print(e.destination[1])
     if e.call_done:
         if e.destination[1][:2] == "cc":
@@ -227,6 +234,17 @@ def update_call(e):
         run_main_algorithm = True
         e.call_done = False
 
+def w_time():
+    true_num=0
+    for i in range(len(cc)):  # cc true
+        for j in range(len(cc[i])):
+            if cc[i][j]:
+                true_num += 1
+    for i in range(len(lc)):  # lc true
+        for j in range(len(lc[i])):
+            if lc[i][j]:
+                true_num += 1
+    return true_num * 0.1
 
 # Make instances and initialize their id and initial position
 # Elevator(id_num, floor)
@@ -234,7 +252,10 @@ elevator1 = Elevator(1, 1)
 elevator2 = Elevator(2, 1)
 command = [[elevator1.location / Building.floor_height + 1, "uncalled"],
            [elevator2.location / Building.floor_height + 1, "uncalled"]]
+wtime = 0
+
 while True:
+
     input_to_call()
     if run_main_algorithm:
         command = call_to_command(elevator1, elevator2)
@@ -254,18 +275,18 @@ while True:
     elevator1.move_to_destination(command[0][0], command[0][1])
     elevator2.move_to_destination(command[1][0], command[1][1])
 
+    wtime = wtime + w_time()
     update_call(elevator1)
     update_call(elevator2)
     print(elevator1)
     print(elevator2)
     print("=" * 30)
-
     # GUI codes
     print_background()
     # Display variables(time & watt)
     watts_str = str(watts)
     text_watts = font.render(watts_str, True, black)
-    time_str = str(wtime)
+    time_str = str(round(wtime,3))
     text_wtime = font.render(time_str, True, black)
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))
