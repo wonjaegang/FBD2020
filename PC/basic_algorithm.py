@@ -211,6 +211,17 @@ def update_call(e):
         run_main_algorithm = True
         e.call_done = False
 
+def w_time():
+    true_num=0
+    for i in range(len(cc)):  # cc true
+        for j in range(len(cc[i])):
+            if cc[i][j]:
+                true_num += 1
+    for i in range(len(lc)):  # lc true
+        for j in range(len(lc[i])):
+            if lc[i][j]:
+                true_num += 1
+    return true_num * 0.1
 
 # Make instances and initialize their id and initial position
 # Elevator(id_num, floor)
@@ -240,6 +251,7 @@ while True:
 
     update_call(elevator1)
     update_call(elevator2)
+    wtime = wtime + w_time()
     print(elevator1)
     print(elevator2)
     print("=" * 30)
@@ -249,7 +261,7 @@ while True:
     # Display variables(time & watt)
     watts_str = str(watts)
     text_watts = font.render(watts_str, True, black)
-    time_str = str(wtime)
+    time_str = str(round(wtime,3))
     text_wtime = font.render(time_str, True, black)
     screen.blit(text_watts, (950, SIZE-30))
     screen.blit(text_wtime, (1050, 2*SIZE-30))
