@@ -180,6 +180,9 @@ def call_to_command(e1, e2):
     #         YOUR ALGORITHM STARTS HERE          #
     #                                             #
     # # # # # # # # # # # # # # # # # # # # # # # #
+    #
+    # Algorithm explanation here. Should be EVIDENT
+    #
     # MUST change call_type to "uncalled" after arrived
 
     # example algorithm
