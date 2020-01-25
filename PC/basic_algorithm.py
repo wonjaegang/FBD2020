@@ -100,10 +100,10 @@ class Elevator:
 
     def move_to_destination(self, floor, call_type):
         self.destination_floor = floor
-        self.destination = [(floor - 1) * Building.floor_height, call_type]  # meter
-        if self.location < self.destination[0]:
+        self.destination = [floor, call_type]
+        if self.location < (floor - 1) * Building.floor_height:
             self.command('u')
-        elif self.location > self.destination[0]:
+        elif self.location > (floor - 1) * Building.floor_height:
             self.command('d')
         elif self.destination[1] == "uncalled":
             self.command('s')
@@ -120,7 +120,7 @@ class Elevator:
         self.opening_sequence -= 1
 
     def __str__(self):
-        return "Elevator{x} Location : {y}m, Direction : {z}, Opening Sequence : {r}, Destination(m) : {a}"\
+        return "Elevator{x} Location : {y}m, Direction : {z}, Opening Sequence : {r}, Destination floor : {a}"\
             .format(x=self.id_num, y=self.location, z=self.v_direction, r=self.opening_sequence, a=self.destination)
 
 
