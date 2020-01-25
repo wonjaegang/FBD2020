@@ -32,6 +32,7 @@ text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
 text_power = font.render("power: ", True, black)
 text_time = font.render("waiting time: ", True, black)
+text_loop_count = font.render("loop count: ", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
@@ -53,6 +54,7 @@ def print_background():
     screen.blit(text_5, (300, SIZE-30))
     screen.blit(text_power, (800, SIZE-30))
     screen.blit(text_time, (800, 2*SIZE-30))
+    screen.blit(text_loop_count, (800, 3 * SIZE - 30))
     screen.blit(text_button, (400, 10))
     screen.blit(text_name, (50, 750))
 
@@ -268,8 +270,11 @@ while True:
     text_watts = font.render(watts_str, True, black)
     time_str = str(round(wtime, 3))
     text_wtime = font.render(time_str, True, black)
-    screen.blit(text_watts, (950, SIZE-30))
-    screen.blit(text_wtime, (1050, 2*SIZE-30))
+    count_str = str(count)
+    text_count = font.render(count_str, True, black)
+    screen.blit(text_watts, (950, SIZE - 30))
+    screen.blit(text_wtime, (1050, 2 * SIZE - 30))
+    screen.blit(text_count, (1050, 3 * SIZE - 30))
     # Display two elevators
     
     pygame.draw.rect(screen, grey, [30 - elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
