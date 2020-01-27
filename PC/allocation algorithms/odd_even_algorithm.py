@@ -146,12 +146,6 @@ def input_to_call():
     data = b''
     if count == 10:
         data = b'J\r\n'
-    if count == 11:
-        data = b'Q\r\n'
-    if count == 12:
-        data = b'D\r\n'
-    if count == 40:
-        data = b'D\r\n'
 
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
@@ -194,36 +188,23 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
-    calls = [[], []]  # [[e1 calls], [e2 calls]]
+    car_calls = []
+    landing_calls = []
     for floor in range(Building.whole_floor):
         for call_type in range(2):
-            if cc[floor][call_type] and (floor == 3 or floor == 5):
-                calls[0].append([floor, "cc" + str(call_type)])
-            if cc[floor][call_type] and (floor == 2 or floor == 4):
-                calls[1].append([floor, "cc" + str(call_type)])
-            else:
-                if cc[floor][call_type]:
-                    for id_num in range(2):
-                        calls[id_num].append([floor, "cc" + str(call_type)])
+            if cc[floor][call_type]:
+                car_calls.append([floor, "cc" + str(call_type)])
     for id_num in range(2):
         for floor in range(Building.whole_floor):
-            if lc[id_num][floor] and (floor == 3 or floor == 5):
-                calls[0].append([floor, "lc"])
-            if lc[id_num][floor] and (floor == 2 or floor == 4):
-                calls[1].append([floor, "lc"])
             if lc[id_num][floor]:
-                calls[id_num].append([floor, "lc"])
-
-    if len(calls[0]) == 0:
-        e1_destination_call = [e1.destination_floor, "uncalled"]
-        if e1.opening_sequence > 0:
-            e1_destination_call = [e1.destination_floor, "uncalled"]
-    if e1_destination_call in calls[1]:
-        calls[1].remove(e1_destination_call)
-    if len(calls[1]) == 0:
-        e2_destination_call = [e2.destination_floor, "uncalled"]
-        if e2.opening_sequence > 0:
-            e2_destination_call = [e2.destination_floor, "uncalled"]
+                landing_calls[id_num].append([floor, "lc"])
+    e1_destination_call=[e1.destination_floor, e1.destination[1]]
+    e2_destination_call=[e2.destination_floor, e2.destination[1]]
+    for i in range (len(car_calls)):
+        if car_calls[i][0] == 2 or car_calls[i][0] == 4:
+            e1_destination_call = car_calls[i]
+        if car_calls[i][0] == 3 or car_calls[i][0] == 5:
+            e2_destination_call = car_calls[i]
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
