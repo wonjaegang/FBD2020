@@ -154,8 +154,8 @@ def input_to_call():
     #     data = b'D\r\n'
     # if count == 40:
     #     data = b'D\r\n'
-    if(data==b'\x00\r\n'):
-        data=b''
+    if data == b'\x00\r\n':
+        data = b''
 
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
