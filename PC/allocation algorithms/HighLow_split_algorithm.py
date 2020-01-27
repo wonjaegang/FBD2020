@@ -156,7 +156,7 @@ def input_to_call():
     if count == 12:
         data = b'D\r\n'
     if count == 40:
-        data = b'M\r\n'
+        data = b'D\r\n'
 
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
@@ -270,37 +270,6 @@ def call_to_command(e1, e2):
         if e1.opening_sequence > 0:
             e1_destination_call = [e1.destination_floor, "uncalled"]
 
-    # if len(calls[0]) != 0:
-    #     e1_destination_call = calls[0][0]
-    # elif e1.v_direction == 1:
-    #     cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
-    #     check = 1
-    #     for index in range(5, cur_floor, -1):
-    #         if(calls[0].count([index, "lc"])):
-    #             e1_destination_call = [index, "lc"]
-    #             check = 0
-    #         if(calls[0].count([index, "cc1"])):
-    #             e1_destination_call = [index, "cc1"]
-    #             check = 0
-    #     if check:
-    #         for index in range(cur_floor+1, 6):
-    #             if(calls[0].count([index, "cc0"])):
-    #                 e1_destination_call = [index, "cc0"]
-    # else:
-    #     cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1
-    #     check = 1
-    #     for index in range(cur_floor+1):
-    #         if(calls[0].count([index, "lc"])):
-    #             e1_destination_call = [index, "lc"]
-    #             check = 0
-    #         if(calls[0].count([index, "cc0"])):
-    #             e1_destination_call = [index, "cc0"]
-    #             check = 0
-    #     if check:
-    #         for index in range(cur_floor, -1, -1):
-    #             if(calls[0].count([index, "cc1"])):
-    #                 e1_destination_call = [index, "cc1"]
-
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
     else:
@@ -337,39 +306,6 @@ def call_to_command(e1, e2):
         if e2.opening_sequence > 0:
             e2_destination_call = [e2.destination_floor, "uncalled"]
 
-    # if len(calls[1]) != 0:
-    #     e2_destination_call = calls[1][0]
-    # elif e2.v_direction == 1:
-    #     cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))
-    #     check = 1
-    #     for index in range(5, cur_floor, -1):
-    #         if(calls[1].count([index, "lc"])):
-    #             e2_destination_call = [index, "lc"]
-    #             check = 0
-    #         if(calls[1].count([index, "cc1"])):
-    #             e2_destination_call = [index, "cc1"]
-    #             check = 0
-    #     if check:
-    #         for index in range(cur_floor+1, 6):
-    #             if(calls[1].count([index, "cc0"])):
-    #                 e2_destination_call = [index, "cc0"]
-    # else:
-    #     cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1
-    #     check = 1
-    #     for index in range(cur_floor+1):
-    #         if(calls[1].count([index, "lc"])):
-    #             e2_destination_call = [index, "lc"]
-    #             check = 0
-    #         if(calls[1].count([index, "cc0"])):
-    #             e2_destination_call = [index, "cc0"]
-    #             check = 0
-    #     if check:
-    #         for index in range(cur_floor, -1, -1):
-    #             if(calls[1].count([index, "cc1"])):
-    #                 e2_destination_call = [index, "cc1"]
-
-        # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
-        # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
     destination_call = [e1_destination_call, e2_destination_call]  # example
     print(destination_call)
     return destination_call
@@ -394,6 +330,19 @@ def update_call(e):
         global run_main_algorithm
         run_main_algorithm = True
         e.call_done = False
+
+
+def update_evaluation_factor():
+    true_num = 0
+    for i in range(len(cc)):  # cc true
+        for j in range(len(cc[i])):
+            if cc[i][j]:
+                true_num += 1
+    for i in range(len(lc)):  # lc true
+        for j in range(len(lc[i])):
+            if lc[i][j]:
+                true_num += 1
+    return true_num * 0.1
 
 
 # Make instances and initialize their id and initial position
@@ -425,6 +374,7 @@ while True:
 
     update_call(elevator1)
     update_call(elevator2)
+    wtime = wtime + update_evaluation_factor()
     print(elevator1)
     print(elevator2)
     print("=" * 30)
@@ -434,7 +384,7 @@ while True:
     # Display variables(time & watt)
     watts_str = str(watts)
     text_watts = font.render(watts_str, True, black)
-    time_str = str(wtime)
+    time_str = str(round(wtime, 3))
     text_wtime = font.render(time_str, True, black)
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))
