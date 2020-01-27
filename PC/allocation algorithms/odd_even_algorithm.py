@@ -198,13 +198,19 @@ def call_to_command(e1, e2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
                 landing_calls[id_num].append([floor, "lc"])
-    e1_destination_call=[e1.destination_floor, e1.destination[1]]
-    e2_destination_call=[e2.destination_floor, e2.destination[1]]
+    e1_destination_call=e1.destination
+    e2_destination_call=e2.destination
     for i in range (len(car_calls)):
         if car_calls[i][0] == 2 or car_calls[i][0] == 4:
             e1_destination_call = car_calls[i]
         if car_calls[i][0] == 3 or car_calls[i][0] == 5:
             e2_destination_call = car_calls[i]
+
+    for i in range (len(landing_calls)):
+        if landing_calls[0][i] == 2 or landing_calls[0][i] == 4:
+            e1_destination_call = landing_calls[0]
+        if landing_calls[1][i] == 3 or landing_calls[1][i] == 5:
+            e2_destination_call = landing_calls[1]
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
