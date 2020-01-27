@@ -1,11 +1,11 @@
 import decimal
-# import serial
+import serial
 import sys
 import pygame
 import random
 import time
 
-#ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
+ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
 
 # define variables for GUI screen
 SCREEN_WIDTH = 1200
@@ -144,16 +144,18 @@ count = 0
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
 def input_to_call():
-    #data = ardu.readline()
-    data = b''
-    if count == 10:
-        data = b'J\r\n'
-    if count == 11:
-        data = b'Q\r\n'
-    if count == 12:
-        data = b'D\r\n'
-    if count == 40:
-        data = b'D\r\n'
+    data = ardu.readline()
+    # data = b''
+    # if count == 10:
+    #     data = b'J\r\n'
+    # if count == 11:
+    #     data = b'Q\r\n'
+    # if count == 12:
+    #     data = b'D\r\n'
+    # if count == 40:
+    #     data = b'D\r\n'
+    if(data==b'\x00\r\n'):
+        data=b''
 
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
@@ -346,5 +348,5 @@ while True:
             sys.exit()
 
     pygame.display.update()
-    time.sleep(0.1)
+    # time.sleep(0.1)
     count = count + 1
