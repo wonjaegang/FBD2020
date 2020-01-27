@@ -1,5 +1,5 @@
 import decimal
-import serial
+# import serial
 import sys
 import pygame
 import time
