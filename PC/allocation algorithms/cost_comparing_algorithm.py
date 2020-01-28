@@ -200,8 +200,17 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # #
     #
     # Cost comparing algorithm :
-    #               allocate random call among lc1 & cc to elevator1, among lc2 & cc to elevator2
+    #               Simulate every number of cases and calculate the cost of each case. Select the case that have
+    #               lowest cost.
+    #           total_cost = wtime_case * Wt + watts_case * Wp + consistency_case * Wc
     #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+    # Set weight values
+    w_time = decimal.Decimal(1.0)
+    w_power = decimal.Decimal(0.0)
+    w_consistency = decimal.Decimal(0.0)
+    assert (w_time + w_power + w_consistency == 1), "Sum of weight values is not 1"
 
     # Put lc / cc values to car_calls and lc_calls list
     car_calls = []
@@ -239,6 +248,7 @@ def call_to_command(e1, e2):
             for case_num2 in range(len(whole_cases2)):
                 wtime_case = 0
                 watts_case = 0
+                consistency_case = 0
                 # Calculate estimated waiting time of passengers in specific case
                 # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
                 if len(whole_cases1[case_num1]) != 0:
@@ -258,8 +268,9 @@ def call_to_command(e1, e2):
                         wtime_case += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
                                        * Building.floor_height + Elevator.door_operating_time)\
                                        * (len(whole_cases2[case_num2]) - 1 - i)
+
                 # Main sentence of this algorithm. Calculate total cost with given weight-values
-                total_cost = wtime_case * decimal.Decimal(1.0) + watts_case * decimal.Decimal(0.0)
+                total_cost = wtime_case * w_time + watts_case * w_power + consistency_case * w_consistency
                 if total_cost < lowest_cost:
                     lowest_cost = total_cost
                     if len(whole_cases1[case_num1]) == 0:
@@ -275,9 +286,11 @@ def call_to_command(e1, e2):
                     else:
                         e2_destination_call = whole_cases2[case_num2][0]
                 print("case(%dth e1 case, %dth e2 case) : " % (case_num1, case_num2), end='')
-                print(whole_cases1[case_num1], whole_cases2[case_num2], end='')
-                print("waiting time : %f watts : %f, total cost : %f" % (wtime_case, watts_case, total_cost))
+                print(whole_cases1[case_num1], whole_cases2[case_num2], "-> ", end='')
+                print("waiting time : %.2f, watts : %.2f, consistency : %0.2f, total cost : %.2f"
+                      % (wtime_case, watts_case, consistency_case, total_cost))
         print("-" * 5)
+
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
     destination_call = [e1_destination_call, e2_destination_call]  # example
