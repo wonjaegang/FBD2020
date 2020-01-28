@@ -5,7 +5,8 @@ import pygame
 import time
 import math
 
-ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
+# revise port's name for each PC after
+#ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)
 
 # define variables for GUI screen
 SCREEN_WIDTH = 1200
@@ -147,19 +148,24 @@ count = 0
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
 def input_to_call():
-    data = ardu.readline()
-    if data == b'\x00\r\n':
-        data=b''
-    # data = b''
-    # if count == 10:
-    #     data = b'J\r\n'
-    # if count == 11:
-    #     data = b'Q\r\n'
-    # if count == 12:
-    #     data = b'D\r\n'
-    # if count == 40:
-    #     data = b'D\r\n'
 
+    # data = ardu.readline()
+    # if data == b'\x00\r\n':
+    #     data = b''
+
+    data = b''
+    if count == 10:
+        data = b'J\r\n'
+    if count == 20:
+        data = b'D\r\n'
+    if count == 21:
+        data = b'I\r\n'
+    if count == 60:
+        data = b'Q\r\n'
+    if count == 100:
+        data = b'N\r\n'
+    if count == 140:
+        data = b'L\r\n'
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
         int.from_bytes(b'A\r\n', "little")
@@ -229,85 +235,92 @@ def call_to_command(e1, e2):
     for id_num in range(2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
-                calls[id_num].append([floor, "lc"])
-
-    calls[0].sort()
-    calls[1].sort()
-    e1_destination_call = [e1.location / Building.floor_height + 1, "uncalled"]
-    e2_destination_call = [e2.location / Building.floor_height + 1, "uncalled"]
+                if id_num == 0:
+                    if floor < 2 or floor > 3:
+                        calls[id_num].append([floor, "lc"])
+                    else:
+                        lc[id_num][floor] = False
+                else:
+                    if floor < 4:
+                        calls[id_num].append([floor, "lc"])
+                    else:
+                        lc[id_num][floor] = False
 
     if len(calls[0]) == 0:
         e1_destination_call = [e1.destination_floor, "uncalled"]
     else:
-        if len(calls[0]) != 0:
-            e1_destination_call = calls[0][0]
-        elif e1.v_direction == 1:
-            cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
-            check = 1
-            for index in range(5, cur_floor, -1):
-                if(calls[0].count([index, "lc"])):
-                    e1_destination_call = [index, "lc"]
-                    check = 0
-                if(calls[0].count([index, "cc1"])):
-                    e1_destination_call = [index, "cc1"]
-                    check = 0
-            if check:
-                for index in range(cur_floor+1, 6):
-                    if(calls[0].count([index, "cc0"])):
-                        e1_destination_call = [index, "cc0"]
-        else:
-            cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1
-            check = 1
-            for index in range(cur_floor+1):
-                if(calls[0].count([index, "lc"])):
-                    e1_destination_call = [index, "lc"]
-                    check = 0
-                if(calls[0].count([index, "cc0"])):
-                    e1_destination_call = [index, "cc0"]
-                    check = 0
-            if check:
-                for index in range(cur_floor, -1, -1):
-                    if(calls[0].count([index, "cc1"])):
-                        e1_destination_call = [index, "cc1"]
         if e1.opening_sequence > 0:
             e1_destination_call = [e1.destination_floor, "uncalled"]
+        else:
+            if e1.v_direction == 0:
+                e1_destination_call = calls[0][0]
+            elif e1.v_direction == 1:
+                cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
+                check = 1
+                for index in range(5, cur_floor, -1):
+                    if(calls[0].count([index, "lc"])):
+                        e1_destination_call = [index, "lc"]
+                        check = 0
+                    if(calls[0].count([index, "cc1"])):
+                        e1_destination_call = [index, "cc1"]
+                        check = 0
+                if check:
+                    for index in range(cur_floor+1, 6):
+                        if(calls[0].count([index, "cc0"])):
+                            e1_destination_call = [index, "cc0"]
+            else:
+                cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1
+                check = 1
+                for index in range(cur_floor+1):
+                    if(calls[0].count([index, "lc"])):
+                        e1_destination_call = [index, "lc"]
+                        check = 0
+                    if(calls[0].count([index, "cc0"])):
+                        e1_destination_call = [index, "cc0"]
+                        check = 0
+                if check:
+                    for index in range(cur_floor, -1, -1):
+                        if(calls[0].count([index, "cc1"])):
+                            e1_destination_call = [index, "cc1"]
+
 
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
     else:
-        if len(calls[1]) != 0:
-            e2_destination_call = calls[1][0]
-        elif e2.v_direction == 1:
-            cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))
-            check = 1
-            for index in range(5, cur_floor, -1):
-                if(calls[1].count([index, "lc"])):
-                    e2_destination_call = [index, "lc"]
-                    check = 0
-                if(calls[1].count([index, "cc1"])):
-                    e2_destination_call = [index, "cc1"]
-                    check = 0
-            if check:
-                for index in range(cur_floor+1, 6):
-                    if(calls[1].count([index, "cc0"])):
-                        e2_destination_call = [index, "cc0"]
-        else:
-            cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1
-            check = 1
-            for index in range(cur_floor+1):
-                if(calls[1].count([index, "lc"])):
-                    e2_destination_call = [index, "lc"]
-                    check = 0
-                if(calls[1].count([index, "cc0"])):
-                    e2_destination_call = [index, "cc0"]
-                    check = 0
-            if check:
-                for index in range(cur_floor, -1, -1):
-                    if(calls[1].count([index, "cc1"])):
-                        e2_destination_call = [index, "cc1"]
         if e2.opening_sequence > 0:
             e2_destination_call = [e2.destination_floor, "uncalled"]
-
+        else: 
+            if len(calls[1]) != 0:
+                e2_destination_call = calls[1][0]
+            elif e2.v_direction == 1:
+                cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))
+                check = 1
+                for index in range(5, cur_floor, -1):
+                    if(calls[1].count([index, "lc"])):
+                        e2_destination_call = [index, "lc"]
+                        check = 0
+                    if(calls[1].count([index, "cc1"])):
+                        e2_destination_call = [index, "cc1"]
+                        check = 0
+                if check:
+                    for index in range(cur_floor+1, 6):
+                        if(calls[1].count([index, "cc0"])):
+                            e2_destination_call = [index, "cc0"]
+            else:
+                cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1
+                check = 1
+                for index in range(cur_floor+1):
+                    if(calls[1].count([index, "lc"])):
+                        e2_destination_call = [index, "lc"]
+                        check = 0
+                    if(calls[1].count([index, "cc0"])):
+                        e2_destination_call = [index, "cc0"]
+                        check = 0
+                if check:
+                    for index in range(cur_floor, -1, -1):
+                        if(calls[1].count([index, "cc1"])):
+                            e2_destination_call = [index, "cc1"]
+       
     destination_call = [e1_destination_call, e2_destination_call]  # example
     print(destination_call)
     return destination_call
@@ -434,5 +447,5 @@ while True:
             sys.exit()
 
     pygame.display.update()
-    # time.sleep(0.1)
+    time.sleep(0.1)
     count = count + 1
