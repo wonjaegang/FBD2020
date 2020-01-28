@@ -166,6 +166,8 @@ def input_to_call():
         data = b'N\r\n'
     if count == 140:
         data = b'L\r\n'
+    if count == 400:
+        data = b'E\r\n'
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
         int.from_bytes(b'A\r\n', "little")
@@ -210,8 +212,7 @@ def call_to_command(e1, e2):
     # MUST change call_type to "uncalled" after arrived
 
     calls = [[], []]
-    e1_destination_call = e1.destination
-    e2_destination_call = e2.destination
+
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
@@ -382,7 +383,7 @@ while True:
     wtime = wtime + update_evaluation_factor()
     print(elevator1)
     print(elevator2)
-    print("=" * 30)
+    print("=" * 120)
 
     # GUI codes
     print_background()

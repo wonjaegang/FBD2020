@@ -260,7 +260,8 @@ def call_to_command(e1, e2):
                         if(calls[0].count([index, "cc1"])):
                             e1_destination_call = [index, "cc1"]
 
-
+    if calls[1].count(e1_destination_call):
+        calls[1].remove(e1_destination_call)
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
     else:
