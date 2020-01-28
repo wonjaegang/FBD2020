@@ -149,14 +149,16 @@ def input_to_call():
     data = b''
     if count == 10:
         data = b'J\r\n'
-    if count == 11:
-        data = b'Q\r\n'
-    if count == 12:
+    if count == 20:
         data = b'D\r\n'
-    if count == 13:
-        data = b'R\r\n'
-    if count == 14:
-        data = b'T\r\n'
+    if count == 21:
+        data = b'I\r\n'
+    if count == 60:
+        data = b'Q\r\n'
+    if count == 100:
+        data = b'N\r\n'
+    if count == 140:
+        data = b'L\r\n'
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
@@ -214,7 +216,7 @@ def call_to_command(e1, e2):
                 lc_calls[id_num].append([floor, "lc"])
 
     # Slice car_calls list with number of all cases
-    lowest_cost = decimal.Decimal(1000000.0);
+    lowest_cost = decimal.Decimal(1000000.0)
     e1_destination_call = []
     e2_destination_call = []
     for slice_case in range(pow(2, len(car_calls))):
