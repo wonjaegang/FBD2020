@@ -204,18 +204,9 @@ def call_to_command(e1, e2):
     print("Elevator1 location before command : %f" % e1.location)
     print("Elevator2 location before command : %f" % e2.location)
     # # # # # # # # # # # # # # # # # # # # # # # #
-    # 1. 멈춰있을 때
-    # 1) 입력이 오면 그냥 바로 이동 (모든 입력 해결 후, 최초 이동)
-    # 2. 올라가는 중
-    # 1) 내 로케이션보다 위에 있는 LC  &  내 로케이션보다 위에 있는 올라가는 콜
-    # 위치가 가까운 순 lc, cc1
-    # 2) 내 로케이션보다 위에 있는 내려가는 콜
-    # 위치보다 멀리 있는 순 cc0
-    # 3. 내려갈 때
-    # 1) 내 로케이션보다 아래에 있는 LC & 내 로케이션보다 아래에 있는 내려가는 콜
-    # 위치가 가까운 순 lc, cc0
-    # 2) 내 로케이션보다 아래에 있는 올라가는 콜
-    # 위치보다 멀리 있는 순 cc1
+    # TO-DO LIST
+    # v_direction이 0일 때 구분 + 이전 진행 방향 파악
+    # 하나의 콜을 동시에 실행하고자 할 때?
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
