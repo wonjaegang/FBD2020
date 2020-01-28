@@ -4,6 +4,7 @@ import sys
 import pygame
 import random
 import time
+import itertools
 
 #ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
 
@@ -152,9 +153,10 @@ def input_to_call():
         data = b'Q\r\n'
     if count == 12:
         data = b'D\r\n'
-    if count == 40:
-        data = b'D\r\n'
-
+    if count == 13:
+        data = b'R\r\n'
+    if count == 14:
+        data = b'T\r\n'
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
@@ -195,44 +197,94 @@ def call_to_command(e1, e2):
     #                                             #
     # # # # # # # # # # # # # # # # # # # # # # # #
     #
-    # Whole random algorithm :
+    # Cost comparing algorithm :
     #               allocate random call among lc1 & cc to elevator1, among lc2 & cc to elevator2
     #
-    calls = [[], []]  # [[e1 calls], [e2 calls]]
+
+    # Put lc / cc values to car_calls and lc_calls list
+    car_calls = []
+    lc_calls = [[], []]
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
-                for id_num in range(2):
-                    calls[id_num].append([floor, "cc" + str(call_type)])
+                car_calls.append([floor, "cc" + str(call_type)])
     for id_num in range(2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
-                calls[id_num].append([floor, "lc"])
+                lc_calls[id_num].append([floor, "lc"])
 
-    if len(calls[0]) == 0:
-        e1_destination_call = [e1.destination_floor, "uncalled"]
-    else:
-        e1_destination_call = random.choice(calls[0])
-        if e1.opening_sequence > 0:
-            e1_destination_call = [e1.destination_floor, "uncalled"]
-    if e1_destination_call in calls[1]:
-        calls[1].remove(e1_destination_call)
-    if len(calls[1]) == 0:
-        e2_destination_call = [e2.destination_floor, "uncalled"]
-    else:
-        e2_destination_call = random.choice(calls[1])
-        if e2.opening_sequence > 0:
-            e2_destination_call = [e2.destination_floor, "uncalled"]
+    # Slice car_calls list with number of all cases
+    lowest_cost = decimal.Decimal(1000000.0);
+    e1_destination_call = []
+    e2_destination_call = []
+    for slice_case in range(pow(2, len(car_calls))):
+        calls = [[], []]
+        # Change slice_case variable to binary number
+        # Put car_calls value to calls[[], []], referring to slice_case
+        for i in range(len(car_calls)):
+            calls[int(format(slice_case, 'b').zfill(len(car_calls))[i])].append(car_calls[i])
+        # Put lc_calls to calls[[], []]
+        for id_num in range(2):
+            calls[id_num] += lc_calls[id_num]
+        print("Car-call slice of this loop : ", end='')
+        print(calls)
+        # Put every case of e1's move into whole_cases1, as tuple, using permutation iterator
+        whole_cases1 = list(itertools.permutations(calls[0], len(calls[0])))
+        for case_num1 in range(len(whole_cases1)):
+            # Put every case of e2's move into whole_cases2, as tuple, using permutation iterator
+            # -> total number of cases : car_call slice case * e1's move case * e2's move case
+            whole_cases2 = list(itertools.permutations(calls[1], len(calls[1])))
+            for case_num2 in range(len(whole_cases2)):
+                wtime_case = 0
+                watts_case = 0
+                # Calculate estimated waiting time of passengers in specific case
+                # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
+                if len(whole_cases1[case_num1]) != 0:
+                    # Waiting time from current location to first destination
+                    wtime_case += abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height) \
+                        * len(whole_cases1[case_num1])
+                    # Waiting time from second destination to last destination
+                    for i in range(len(whole_cases1[case_num1]) - 1):
+                        wtime_case += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
+                                       * Building.floor_height + Elevator.door_operating_time)\
+                                       * (len(whole_cases1[case_num1]) - 1 - i)
+                # Just same with e1
+                if len(whole_cases2[case_num2]) != 0:
+                    wtime_case += abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height) \
+                        * len(whole_cases2[case_num2])
+                    for i in range(len(whole_cases2[case_num2]) - 1):
+                        wtime_case += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
+                                       * Building.floor_height + Elevator.door_operating_time)\
+                                       * (len(whole_cases2[case_num2]) - 1 - i)
+                # Main sentence of this algorithm. Calculate total cost with given weight-values
+                total_cost = wtime_case * decimal.Decimal(1.0) + watts_case * decimal.Decimal(0.0)
+                if total_cost < lowest_cost:
+                    lowest_cost = total_cost
+                    if len(whole_cases1[case_num1]) == 0:
+                        e1_destination_call = [e1.destination_floor, "uncalled"]
+                    elif e1.opening_sequence > 0:
+                        e1_destination_call = [e1.destination_floor, "uncalled"]
+                    else:
+                        e1_destination_call = whole_cases1[case_num1][0]
+                    if len(whole_cases2[case_num2]) == 0:
+                        e2_destination_call = [e2.destination_floor, "uncalled"]
+                    elif e2.opening_sequence > 0:
+                        e2_destination_call = [e2.destination_floor, "uncalled"]
+                    else:
+                        e2_destination_call = whole_cases2[case_num2][0]
+                print("case(%dth e1 case, %dth e2 case) : " % (case_num1, case_num2), end='')
+                print(whole_cases1[case_num1], whole_cases2[case_num2], end='')
+                print("waiting time : %f watts : %f, total cost : %f" % (wtime_case, watts_case, total_cost))
+        print("-" * 5)
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
     destination_call = [e1_destination_call, e2_destination_call]  # example
-    print(destination_call)
+    print("selected destination :", destination_call)
     return destination_call
 
 
 # Turn off calls if elevator arrived
 def update_call(e):
-    print(e.destination[1])
     if e.call_done:
         if e.destination[1][:2] == "cc":
             if cc[e.destination_floor][int(e.destination[1][2])]:
@@ -296,7 +348,7 @@ while True:
     wtime = wtime + update_evaluation_factor()
     print(elevator1)
     print(elevator2)
-    print("=" * 30)
+    print("=" * 50)
 
     # GUI codes
     print_background()
