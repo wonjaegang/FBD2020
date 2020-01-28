@@ -206,6 +206,7 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # #
     # TO-DO LIST
     # v_direction이 0일 때 구분 + 이전 진행 방향 파악
+    # 하나의 콜을 동시에 실행하고자 할 때?
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
@@ -215,27 +216,13 @@ def call_to_command(e1, e2):
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
-                if floor > 3:
-                    calls[0].append([floor, "cc" + str(call_type)])
-                elif floor > 1:
-                    calls[1].append([floor, "cc" + str(call_type)])
-                else:
-                    calls[0].append([floor, "cc" + str(call_type)])
-                    calls[1].append([floor, "cc" + str(call_type)])
+                calls[0].append([floor, "cc" + str(call_type)])
+                calls[1].append([floor, "cc" + str(call_type)])
     for id_num in range(2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
-                if id_num == 0:
-                    if floor < 2 or floor > 3:
-                        calls[id_num].append([floor, "lc"])
-                    else:
-                        lc[id_num][floor] = False
-                else:
-                    if floor < 4:
-                        calls[id_num].append([floor, "lc"])
-                    else:
-                        lc[id_num][floor] = False
-
+                calls[id_num].append([floor, "lc"])
+                
     if len(calls[0]) == 0:
         e1_destination_call = [e1.destination_floor, "uncalled"]
     else:
