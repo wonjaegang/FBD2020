@@ -202,7 +202,10 @@ def call_to_command(e1, e2):
     # Cost comparing algorithm :
     #               Simulate every number of cases and calculate the cost of each case. Select the case that have
     #               lowest cost.
-    #           total_cost = wtime_case * Wt + watts_case * Wp + consistency_case * Wc
+    #           cost_time :
+    #           cost_power :
+    #           cost_consistency :
+    #           cost_total = cost_time * Wt + cost_power * Wp + cost_consistency * Wc
     #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -246,33 +249,33 @@ def call_to_command(e1, e2):
             # -> total number of cases : car_call slice case * e1's move case * e2's move case
             whole_cases2 = list(itertools.permutations(calls[1], len(calls[1])))
             for case_num2 in range(len(whole_cases2)):
-                wtime_case = 0
-                watts_case = 0
-                consistency_case = 0
+                cost_time = 0
+                cost_power = 0
+                cost_consistency = 0
                 # Calculate estimated waiting time of passengers in specific case
                 # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
                 if len(whole_cases1[case_num1]) != 0:
                     # Waiting time from current location to first destination
-                    wtime_case += abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height) \
+                    cost_time += abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height) \
                         * len(whole_cases1[case_num1])
                     # Waiting time from second destination to last destination
                     for i in range(len(whole_cases1[case_num1]) - 1):
-                        wtime_case += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
-                                       * Building.floor_height + Elevator.door_operating_time)\
+                        cost_time += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
+                                      * Building.floor_height + Elevator.door_operating_time)\
                                        * (len(whole_cases1[case_num1]) - 1 - i)
                 # Just same with e1
                 if len(whole_cases2[case_num2]) != 0:
-                    wtime_case += abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height) \
+                    cost_time += abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height) \
                         * len(whole_cases2[case_num2])
                     for i in range(len(whole_cases2[case_num2]) - 1):
-                        wtime_case += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
-                                       * Building.floor_height + Elevator.door_operating_time)\
+                        cost_time += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
+                                      * Building.floor_height + Elevator.door_operating_time)\
                                        * (len(whole_cases2[case_num2]) - 1 - i)
 
                 # Main sentence of this algorithm. Calculate total cost with given weight-values
-                total_cost = wtime_case * w_time + watts_case * w_power + consistency_case * w_consistency
-                if total_cost < lowest_cost:
-                    lowest_cost = total_cost
+                cost_total = cost_time * w_time + cost_power * w_power + cost_consistency * w_consistency
+                if cost_total < lowest_cost:
+                    lowest_cost = cost_total
                     if len(whole_cases1[case_num1]) == 0:
                         e1_destination_call = [e1.destination_floor, "uncalled"]
                     elif e1.opening_sequence > 0:
@@ -288,7 +291,7 @@ def call_to_command(e1, e2):
                 print("case(%dth e1 case, %dth e2 case) : " % (case_num1, case_num2), end='')
                 print(whole_cases1[case_num1], whole_cases2[case_num2], "-> ", end='')
                 print("waiting time : %.2f, watts : %.2f, consistency : %0.2f, total cost : %.2f"
-                      % (wtime_case, watts_case, consistency_case, total_cost))
+                      % (cost_time, cost_power, cost_consistency, cost_total))
         print("-" * 5)
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
