@@ -146,17 +146,13 @@ def input_to_call():
     #data = ardu.readline()
     data = b''
     if count == 10:
-        data = b'J\r\n'
+        data = b'F\r\n'
     if count == 11:
-        data = b'Q\r\n'
-    if count == 12:
-        data = b'D\r\n'
-    if count == 13:
-        data = b'G\r\n'
-    if count == 14:
         data = b'H\r\n'
-    if count == 40:
-        data = b'D\r\n'
+    if count == 12:
+        data = b'A\r\n'
+    if count == 14:
+        data = b'N\r\n'
 
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
@@ -204,9 +200,9 @@ def call_to_command(e1, e2):
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
-                if floor == 2 or floor == 4:
+                if call_type == 1:
                     calls[0].append([floor, "cc" + str(call_type)])
-                elif floor == 3 or floor == 5:
+                elif call_type == 0:
                     calls[1].append([floor, "cc" + str(call_type)])
                 else:
                     calls[0].append([floor, "cc" + str(call_type)])
@@ -214,16 +210,7 @@ def call_to_command(e1, e2):
     for id_num in range(2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
-                if id_num == 0:
-                    if floor == 2 or floor == 4:
-                        calls[id_num].append([floor, "lc"])
-                    else:
-                        lc[id_num][floor] = False
-                else:
-                    if floor == 3 or floor == 5:
-                        calls[id_num].append([floor, "lc"])
-                    else:
-                        lc[id_num][floor] = False
+                calls[id_num].append([floor, "lc"])
 
     if len(calls[0]) == 0:
         e1_destination_call = [e1.destination_floor, "uncalled"]
