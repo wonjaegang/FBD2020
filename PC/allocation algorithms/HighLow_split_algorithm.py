@@ -209,7 +209,7 @@ def call_to_command(e1, e2):
     print("Elevator2 location before command : %f" % e2.location)
     # # # # # # # # # # # # # # # # # # # # # # # #
     # TO-DO LIST
-    # lc와 cc가 같이 해결될 때를 코딩하자
+    # lc와 cc가 같이 해결될 때를 코딩하자 -> 문이 두번 열리는 현상 발생
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
@@ -369,21 +369,50 @@ def call_to_command(e1, e2):
 def update_call(e):
     print(e.destination[1])
     if e.call_done:
-        if e.destination[1][:2] == "cc":
-            if cc[e.destination_floor][int(e.destination[1][2])]:
-                cc[e.destination_floor][int(e.destination[1][2])] = False
-            else:
-                raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                 e.destination)
-        elif e.destination[1][:2] == "lc":
-            if lc[e.id_num - 1][e.destination_floor]:
-                lc[e.id_num - 1][e.destination_floor] = False
-            else:
-                raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                 e.destination)
-        global run_main_algorithm
-        run_main_algorithm = True
-        e.call_done = False
+        if e.prev_destination == 1:
+            if e.destination[1][2] == "cc1":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num-1][e.destination_floor] = False
+            elif e.destination[1][2] == "lc":
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num-1][e.destination_floor] = False
+                # if 위에서 콜이 없다면
+                # 같은 층의 cc0도 false로 
+            elif e.destination[1][2] == "cc0":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+        elif e.prev_destination == -1:
+            if e.destination[1][2] == "cc0":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num-1][e.destination_floor] = False
+            elif e.destination[1][2] == "lc":
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num-1][e.destination_floor] = False
+                # if 아래서 콜이 없다면
+                # 같은 층의 cc1도 false로
+            elif e.destination[1][2] == "cc1":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+        else:
+            if e.destination[1][:2] == "cc":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+                else:
+                    raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
+                                    e.destination)
+            elif e.destination[1][:2] == "lc":
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num - 1][e.destination_floor] = False
+                else:
+                    raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
+                                    e.destination)
+    global run_main_algorithm
+    run_main_algorithm = True
+    e.call_done = False
 
 
 def update_evaluation_factor():
