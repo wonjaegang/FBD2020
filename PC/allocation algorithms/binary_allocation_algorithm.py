@@ -256,14 +256,10 @@ def call_to_command(e1, e2):
             if check_d == 1:
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
                 check = 1
-                for index in rangtination_call):
-            calls[1].remove(e1_destina
-                    if(calls[0].ctination_call):
-            calls[1].remove(e1_destina
-                        e1_destintination_call):
-            calls[1].remove(e1_destina"]
-                        check = 0tination_call):
-            calls[1].remove(e1_destina
+                for index in range(5, cur_floor, -1):
+                    if(calls[0].count([index, "lc"])):
+                        e1_destination_call = [index, "lc"]
+                        check = 0
                     if(calls[0].count([index, "cc1"])):
                         e1_destination_call = [index, "cc1"]
                         check = 0
@@ -289,7 +285,7 @@ def call_to_command(e1, e2):
     if e1_destination_call[1] != "lc":
         if calls[1].count(e1_destination_call):
             calls[1].remove(e1_destination_call)
-
+            
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
     else:
