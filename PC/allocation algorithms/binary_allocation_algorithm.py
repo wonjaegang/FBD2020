@@ -223,8 +223,9 @@ def call_to_command(e1, e2):
             if lc[id_num][floor]:
                 calls[id_num].append([floor, "lc"])
     
-    if calls[0].count(e2_prev_dest):
-        calls[0].remove(e2_prev_dest)
+    if e2.destination[1] != "lc":
+        if calls[0].count(e2_prev_dest):
+            calls[0].remove(e2_prev_dest)
           
     if len(calls[0]) == 0:
         e1_destination_call = [e1.destination_floor, "uncalled"]
@@ -281,8 +282,9 @@ def call_to_command(e1, e2):
                         if(calls[0].count([index, "cc1"])):
                             e1_destination_call = [index, "cc1"]
 
-    if calls[1].count(e1_destination_call):
-        calls[1].remove(e1_destination_call)
+    if e1_destination_call[1] != "lc":
+        if calls[1].count(e1_destination_call):
+            calls[1].remove(e1_destination_call)
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
     else:
