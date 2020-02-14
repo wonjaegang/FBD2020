@@ -215,6 +215,7 @@ def call_to_command(e1, e2):
     # MUST change call_type to "uncalled" after arrived
 
     calls = [[], []]
+    e2_prev_dest = [e2.destination_floor, e2.destination[1]]
 
     for floor in range(Building.whole_floor):
         for call_type in range(2):
@@ -239,6 +240,11 @@ def call_to_command(e1, e2):
                         calls[id_num].append([floor, "lc"])
                     else:
                         lc[id_num][floor] = False
+
+    if e2.destination_floor < 2:
+        if e2.destination[1] != "lc":
+            if calls[0].count(e2_prev_dest):
+                calls[0].remove(e2_prev_dest)
 
     if len(calls[0]) == 0:
         e1_destination_call = [e1.destination_floor, "uncalled"]
@@ -294,6 +300,11 @@ def call_to_command(e1, e2):
                     for index in range(cur_floor, -1, -1):
                         if(calls[0].count([index, "cc1"])):
                             e1_destination_call = [index, "cc1"]
+
+    if e1_destination_call[0] < 2:
+        if e1_destination_call[1] != "lc":
+            if calls[1].count(e1_destination_call):
+                calls[1].remove(e1_destination_call)
 
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
