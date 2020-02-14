@@ -209,7 +209,6 @@ def call_to_command(e1, e2):
     print("Elevator2 location before command : %f" % e2.location)
     # # # # # # # # # # # # # # # # # # # # # # # #
     # TO-DO LIST
-    # cc가 두 엘리베이터를 동시에 부를 경우? -> binary alloc 참고하기
     # lc와 cc의 우선순위 분명히 하자 상황에 따라
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
