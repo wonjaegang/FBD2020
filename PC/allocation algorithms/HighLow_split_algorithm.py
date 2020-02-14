@@ -209,7 +209,7 @@ def call_to_command(e1, e2):
     print("Elevator2 location before command : %f" % e2.location)
     # # # # # # # # # # # # # # # # # # # # # # # #
     # TO-DO LIST
-    # lc와 cc의 우선순위 분명히 하자 상황에 따라
+    # lc와 cc가 같이 해결될 때를 코딩하자
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
