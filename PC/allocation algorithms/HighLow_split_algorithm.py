@@ -166,6 +166,7 @@ def input_to_call():
         data = b'Q\r\n'
     if count == 100:
         data = b'N\r\n'
+        data = b'P\r\n'
     if count == 140:
         data = b'L\r\n'
     if count == 400:
@@ -209,7 +210,6 @@ def call_to_command(e1, e2):
     print("Elevator2 location before command : %f" % e2.location)
     # # # # # # # # # # # # # # # # # # # # # # # #
     # TO-DO LIST
-    # lc와 cc가 같이 해결될 때를 코딩하자 -> 문이 두번 열리는 현상 발생
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
@@ -367,34 +367,45 @@ def call_to_command(e1, e2):
 
 # Turn off calls if elevator arrived
 def update_call(e):
-    print(e.destination[1])
     if e.call_done:
         if e.prev_destination == 1:
-            if e.destination[1][2] == "cc1":
+            if e.destination[1] == "cc1":
                 if cc[e.destination_floor][int(e.destination[1][2])]:
                     cc[e.destination_floor][int(e.destination[1][2])] = False
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num-1][e.destination_floor] = False
-            elif e.destination[1][2] == "lc":
+            elif e.destination[1] == "lc":
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num-1][e.destination_floor] = False
-                # if 위에서 콜이 없다면
-                # 같은 층의 cc0도 false로 
-            elif e.destination[1][2] == "cc0":
+                check = True
+                for index in range(e.destination_floor + 1, 6):
+                    if cc[index][0] or cc[index][1]:
+                        check = False
+                    if lc[e.id_num-1][index]:
+                        check = False
+                if check:
+                    cc[e.destination_floor][0] = False
+            elif e.destination[1] == "cc0":
                 if cc[e.destination_floor][int(e.destination[1][2])]:
                     cc[e.destination_floor][int(e.destination[1][2])] = False
         elif e.prev_destination == -1:
-            if e.destination[1][2] == "cc0":
+            if e.destination[1] == "cc0":
                 if cc[e.destination_floor][int(e.destination[1][2])]:
                     cc[e.destination_floor][int(e.destination[1][2])] = False
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num-1][e.destination_floor] = False
-            elif e.destination[1][2] == "lc":
+            elif e.destination[1] == "lc":
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num-1][e.destination_floor] = False
-                # if 아래서 콜이 없다면
-                # 같은 층의 cc1도 false로
-            elif e.destination[1][2] == "cc1":
+                check = True
+                for index in range(e.destination_floor - 1, -1, -1):
+                    if cc[index][0] or cc[index][1]:
+                        check = False
+                    if lc[e.id_num-1][index]:
+                        check =False
+                    if check:
+                        cc[e.destination_floor][1] = False
+            elif e.destination[1] == "cc1":
                 if cc[e.destination_floor][int(e.destination[1][2])]:
                     cc[e.destination_floor][int(e.destination[1][2])] = False
         else:
