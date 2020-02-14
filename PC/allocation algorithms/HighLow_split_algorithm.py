@@ -209,8 +209,7 @@ def call_to_command(e1, e2):
     print("Elevator2 location before command : %f" % e2.location)
     # # # # # # # # # # # # # # # # # # # # # # # #
     # TO-DO LIST
-    # v_direction이 0일 때 구분 + 이전 진행 방향 파악
-    # 이전 진행 방향과 가까운 것에 대해서 구분 필요
+    # cc가 두 엘리베이터를 동시에 부를 경우? -> binary alloc 참고하기
     # lc와 cc의 우선순위 분명히 하자 상황에 따라
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
