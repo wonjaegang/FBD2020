@@ -359,7 +359,7 @@ def call_to_command(e1, e2):
                     for index in range(cur_floor, -1, -1):
                         if(calls[1].count([index, "cc1"])):
                             e2_destination_call = [index, "cc1"]
-            
+
     destination_call = [e1_destination_call, e2_destination_call]  # example
     print(destination_call)
     return destination_call
@@ -402,7 +402,7 @@ def update_call(e):
                     if cc[index][0] or cc[index][1]:
                         check = False
                     if lc[e.id_num-1][index]:
-                        check =False
+                        check = False
                     if check:
                         cc[e.destination_floor][1] = False
             elif e.destination[1] == "cc1":
@@ -414,13 +414,13 @@ def update_call(e):
                     cc[e.destination_floor][int(e.destination[1][2])] = False
                 else:
                     raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                    e.destination)
+                                     e.destination)
             elif e.destination[1][:2] == "lc":
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num - 1][e.destination_floor] = False
                 else:
                     raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                    e.destination)
+                                     e.destination)
     global run_main_algorithm
     run_main_algorithm = True
     e.call_done = False

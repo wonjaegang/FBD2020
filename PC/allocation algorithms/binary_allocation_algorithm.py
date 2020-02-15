@@ -157,19 +157,19 @@ def input_to_call():
 
     data = b''
     if count == 10:
-        data = b'J\r\n' # 5 cc0
+        data = b'J\r\n'  # 5 cc0
     if count == 20:
-        data = b'D\r\n' # 2 cc1
+        data = b'D\r\n'  # 2 cc1
     if count == 21:
-        data = b'I\r\n' # 4 cc0
+        data = b'I\r\n'  # 4 cc0
     if count == 100:
-        data = b'P\r\n' # 5 lc A
+        data = b'P\r\n'  # 5 lc A
     if count == 160:
-        data = b'S\r\n' # 2 lc B
+        data = b'S\r\n'  # 2 lc B
     if count == 200:
-        data = b'A\r\n' # B1 cc1
+        data = b'A\r\n'  # B1 cc1
     if count == 340:
-        data = b'L\r\n' # 1 lc A
+        data = b'L\r\n'  # 1 lc A
     # if count == 100:
     #     data = b'N\r\n'
     # if count == 140:
@@ -227,11 +227,11 @@ def call_to_command(e1, e2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
                 calls[id_num].append([floor, "lc"])
-    
+
     if e2.destination[1] != "lc":
         if calls[0].count(e2_prev_dest):
             calls[0].remove(e2_prev_dest)
-          
+
     if len(calls[0]) == 0:
         e1_destination_call = [e1.destination_floor, "uncalled"]
     else:
@@ -290,7 +290,7 @@ def call_to_command(e1, e2):
     if e1_destination_call[1] != "lc":
         if calls[1].count(e1_destination_call):
             calls[1].remove(e1_destination_call)
-            
+
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
     else:
@@ -388,7 +388,7 @@ def update_call(e):
                     if cc[index][0] or cc[index][1]:
                         check = False
                     if lc[e.id_num-1][index]:
-                        check =False
+                        check = False
                     if check:
                         cc[e.destination_floor][1] = False
             elif e.destination[1] == "cc1":
@@ -400,13 +400,13 @@ def update_call(e):
                     cc[e.destination_floor][int(e.destination[1][2])] = False
                 else:
                     raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                    e.destination)
+                                     e.destination)
             elif e.destination[1][:2] == "lc":
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num - 1][e.destination_floor] = False
                 else:
                     raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                    e.destination)
+                                     e.destination)
     global run_main_algorithm
     run_main_algorithm = True
     e.call_done = False
