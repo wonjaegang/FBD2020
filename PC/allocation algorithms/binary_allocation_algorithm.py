@@ -157,17 +157,23 @@ def input_to_call():
 
     data = b''
     if count == 10:
-        data = b'J\r\n'
+        data = b'J\r\n' # 5 cc0
     if count == 20:
-        data = b'D\r\n'
+        data = b'D\r\n' # 2 cc1
     if count == 21:
-        data = b'I\r\n'
-    if count == 60:
-        data = b'Q\r\n'
+        data = b'I\r\n' # 4 cc0
     if count == 100:
-        data = b'N\r\n'
-    if count == 140:
-        data = b'L\r\n'
+        data = b'P\r\n' # 5 lc A
+    if count == 160:
+        data = b'S\r\n' # 2 lc B
+    if count == 200:
+        data = b'A\r\n' # B1 cc1
+    if count == 340:
+        data = b'L\r\n' # 1 lc A
+    # if count == 100:
+    #     data = b'N\r\n'
+    # if count == 140:
+    #     data = b'L\r\n'
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
         int.from_bytes(b'A\r\n', "little")
