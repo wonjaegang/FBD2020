@@ -210,9 +210,9 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Set weight values
-    w_time = decimal.Decimal(1.0)
+    w_time = decimal.Decimal(0.7)
     w_power = decimal.Decimal(0.0)
-    w_consistency = decimal.Decimal(0.0)
+    w_consistency = decimal.Decimal(0.3)
     assert (w_time + w_power + w_consistency == 1), "Sum of weight values is not 1"
 
     # Put lc / cc values to car_calls and lc_calls list
@@ -255,21 +255,21 @@ def call_to_command(e1, e2):
                 # Calculate estimated waiting time of passengers in specific case
                 # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
                 if len(whole_cases1[case_num1]) != 0:
-                    # Waiting time from current location to first destination
-                    cost_time += abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height) \
-                        * len(whole_cases1[case_num1])
+                    # Waiting time from current location & opening sequence to first destination
+                    cost_time += (abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
+                                  + e1.opening_sequence) * len(whole_cases1[case_num1])
                     # Waiting time from second destination to last destination
                     for i in range(len(whole_cases1[case_num1]) - 1):
                         cost_time += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
-                                      * Building.floor_height + Elevator.door_operating_time)\
+                                      * Building.floor_height + Elevator.door_operating_time) \
                                        * (len(whole_cases1[case_num1]) - 1 - i)
-                # Just same with e1
+                # e2 : Just same with e1
                 if len(whole_cases2[case_num2]) != 0:
-                    cost_time += abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height) \
-                        * len(whole_cases2[case_num2])
+                    cost_time += (abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
+                                  + e2.opening_sequence) * len(whole_cases2[case_num2])
                     for i in range(len(whole_cases2[case_num2]) - 1):
                         cost_time += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
-                                      * Building.floor_height + Elevator.door_operating_time)\
+                                      * Building.floor_height + Elevator.door_operating_time) \
                                        * (len(whole_cases2[case_num2]) - 1 - i)
 
                 # Main sentence of this algorithm. Calculate total cost with given weight-values
