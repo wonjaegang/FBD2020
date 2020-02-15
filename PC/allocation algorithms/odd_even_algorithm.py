@@ -78,10 +78,12 @@ class Elevator:
         self.id_num = id_num
         self.location = Building.floor_height * (floor - 1)
         self.v_direction = 0
+        self.prev_destination = 0
         self.opening_sequence = 0
         self.destination_floor = floor
         self.destination = [self.location, "uncalled"]
         self.call_done = False
+
 
     def command(self, motion):
         if motion == 'u':
@@ -143,22 +145,30 @@ count = 0
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
 def input_to_call():
-    #data = ardu.readline()
+
+    # data = ardu.readline()
+    # if data == b'\x00\r\n':
+    #     data = b''
+
     data = b''
     if count == 10:
         data = b'J\r\n'
-    if count == 11:
+    if count == 20:
+        data = b'D\r\n'
+    if count == 21:
+        data = b'I\r\n'
+    if count == 60:
         data = b'Q\r\n'
-    if count == 12:
-        data = b'D\r\n'
-    if count == 13:
-        data = b'G\r\n'
-    if count == 14:
-        data = b'H\r\n'
-    if count == 40:
-        data = b'D\r\n'
-
-    int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
+    if count == 100:
+        data = b'N\r\n'
+        data = b'P\r\n'
+    if count == 140:
+        data = b'L\r\n'
+    if count == 400:
+        data = b'E\r\n'
+    # Convert to int starts from 0
+    int_data = int.from_bytes(data, "little") - \
+        int.from_bytes(b'A\r\n', "little")
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
         print("There is no button input")
@@ -180,7 +190,8 @@ def input_to_call():
         # If input data is Landing Call : door open
         else:
             open_id = int_data - (cc_button_num + Building.whole_floor * 2)
-            lc[open_id][Building.whole_floor] = bool(1 - lc[open_id][Building.whole_floor])
+            lc[open_id][Building.whole_floor] = bool(
+                1 - lc[open_id][Building.whole_floor])
         global run_main_algorithm
         run_main_algorithm = True
         print("Button Board says (", data, ") which means %dth button" % int_data)
@@ -193,13 +204,12 @@ def call_to_command(e1, e2):
     print("Elevator1 location before command : %f" % e1.location)
     print("Elevator2 location before command : %f" % e2.location)
     # # # # # # # # # # # # # # # # # # # # # # # #
-    #                                             #
-    #         YOUR ALGORITHM STARTS HERE          #
-    #                                             #
+    # TO-DO LIST
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
     calls = [[], []]
+    e2_prev_dest = [e2.destination_floor, e2.destination[1]]
 
     for floor in range(Building.whole_floor):
         for call_type in range(2):
@@ -225,6 +235,11 @@ def call_to_command(e1, e2):
                     else:
                         lc[id_num][floor] = False
 
+    if e2.destination_floor < 2:
+        if e2.destination[1] != "lc":
+            if calls[0].count(e2_prev_dest):
+                calls[0].remove(e2_prev_dest)
+
     if len(calls[0]) == 0:
         e1_destination_call = [e1.destination_floor, "uncalled"]
     else:
@@ -232,35 +247,58 @@ def call_to_command(e1, e2):
             e1_destination_call = [e1.destination_floor, "uncalled"]
         else:
             if e1.v_direction == 0:
-                e1_destination_call = calls[0][0]
+                if e1.prev_destination == 0:
+                    e1_destination_call = calls[0][0]
+                    check_d = 0
+                else:
+                    cur_floor = e1.location / decimal.Decimal(2.5)
+                    if e1.prev_destination == 1:
+                        check_d = -1
+                        for i in range(len(calls[0])):
+                            if(calls[0][i][0] > cur_floor):
+                                check_d = 1
+                    elif e1.prev_destination == -1:
+                        check_d = 1
+                        for i in range(len(calls[0])):
+                            if(calls[0][i][0] < cur_floor):
+                                check_d = -1
             elif e1.v_direction == 1:
+                check_d = 1
+            else:
+                check_d = -1
+            if check_d == 1:
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
                 check = 1
                 for index in range(5, cur_floor, -1):
-                    if (calls[0].count([index, "lc"])):
+                    if(calls[0].count([index, "lc"])):
                         e1_destination_call = [index, "lc"]
                         check = 0
-                    if (calls[0].count([index, "cc1"])):
+                    if(calls[0].count([index, "cc1"])):
                         e1_destination_call = [index, "cc1"]
                         check = 0
                 if check:
-                    for index in range(cur_floor + 1, 6):
-                        if (calls[0].count([index, "cc0"])):
+                    for index in range(cur_floor+1, 6):
+                        if(calls[0].count([index, "cc0"])):
                             e1_destination_call = [index, "cc0"]
-            else:
+            elif check_d == -1:
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1
                 check = 1
-                for index in range(cur_floor + 1):
-                    if (calls[0].count([index, "lc"])):
+                for index in range(cur_floor+1):
+                    if(calls[0].count([index, "lc"])):
                         e1_destination_call = [index, "lc"]
                         check = 0
-                    if (calls[0].count([index, "cc0"])):
+                    if(calls[0].count([index, "cc0"])):
                         e1_destination_call = [index, "cc0"]
                         check = 0
                 if check:
                     for index in range(cur_floor, -1, -1):
-                        if (calls[0].count([index, "cc1"])):
+                        if(calls[0].count([index, "cc1"])):
                             e1_destination_call = [index, "cc1"]
+
+    if e1_destination_call[0] < 2:
+        if e1_destination_call[1] != "lc":
+            if calls[1].count(e1_destination_call):
+                calls[1].remove(e1_destination_call)
 
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
@@ -268,62 +306,131 @@ def call_to_command(e1, e2):
         if e2.opening_sequence > 0:
             e2_destination_call = [e2.destination_floor, "uncalled"]
         else:
-            if len(calls[1]) != 0:
-                e2_destination_call = calls[1][0]
+            if e2.v_direction == 0:
+                if e2.prev_destination == 0:
+                    e2_destination_call = calls[1][0]
+                    check_d = 0
+                else:
+                    cur_floor = e2.location / decimal.Decimal(2.5)
+                    if e2.prev_destination == 1:
+                        check_d = -1
+                        for i in range(len(calls[1])):
+                            if(calls[1][i][0] > cur_floor):
+                                check_d = 1
+                    elif e2.prev_destination == -1:
+                        check_d = 1
+                        for i in range(len(calls[1])):
+                            if(calls[1][i][0] < cur_floor):
+                                check_d = -1
             elif e2.v_direction == 1:
+                check_d = 1
+            else:
+                check_d = -1
+            if check_d == 1:
                 cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))
                 check = 1
                 for index in range(5, cur_floor, -1):
-                    if (calls[1].count([index, "lc"])):
+                    if(calls[1].count([index, "lc"])):
                         e2_destination_call = [index, "lc"]
                         check = 0
-                    if (calls[1].count([index, "cc1"])):
+                    if(calls[1].count([index, "cc1"])):
                         e2_destination_call = [index, "cc1"]
                         check = 0
                 if check:
-                    for index in range(cur_floor + 1, 6):
-                        if (calls[1].count([index, "cc0"])):
+                    for index in range(cur_floor+1, 6):
+                        if(calls[1].count([index, "cc0"])):
                             e2_destination_call = [index, "cc0"]
-            else:
+            elif check_d == -1:
                 cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1
                 check = 1
-                for index in range(cur_floor + 1):
-                    if (calls[1].count([index, "lc"])):
+                for index in range(cur_floor+1):
+                    if(calls[1].count([index, "lc"])):
                         e2_destination_call = [index, "lc"]
                         check = 0
-                    if (calls[1].count([index, "cc0"])):
+                    if(calls[1].count([index, "cc0"])):
                         e2_destination_call = [index, "cc0"]
                         check = 0
                 if check:
                     for index in range(cur_floor, -1, -1):
-                        if (calls[1].count([index, "cc1"])):
+                        if(calls[1].count([index, "cc1"])):
                             e2_destination_call = [index, "cc1"]
 
     destination_call = [e1_destination_call, e2_destination_call]  # example
     print(destination_call)
     return destination_call
 
+def update_evaluation_factor():
+    true_num = 0
+    for i in range(len(cc)):  # cc true
+        for j in range(len(cc[i])):
+            if cc[i][j]:
+                true_num += 1
+    for i in range(len(lc)):  # lc true
+        for j in range(len(lc[i])):
+            if lc[i][j]:
+                true_num += 1
+    return true_num * 0.1
 
 # Turn off calls if elevator arrived
 def update_call(e):
-
-    print(e.destination[1])
     if e.call_done:
-        if e.destination[1][:2] == "cc":
-            if cc[e.destination_floor][int(e.destination[1][2])]:
-                cc[e.destination_floor][int(e.destination[1][2])] = False
-            else:
-                raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                 e.destination)
-        elif e.destination[1][:2] == "lc":
-            if lc[e.id_num - 1][e.destination_floor]:
-                lc[e.id_num - 1][e.destination_floor] = False
-            else:
-                raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                 e.destination)
-        global run_main_algorithm
-        run_main_algorithm = True
-        e.call_done = False
+        if e.prev_destination == 1:
+            if e.destination[1] == "cc1":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num-1][e.destination_floor] = False
+            elif e.destination[1] == "lc":
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num-1][e.destination_floor] = False
+                check = True
+                for index in range(e.destination_floor + 1, 6):
+                    if cc[index][0] or cc[index][1]:
+                        check = False
+                    if lc[e.id_num-1][index]:
+                        check = False
+                if check:
+                    cc[e.destination_floor][0] = False
+            elif e.destination[1] == "cc0":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+        elif e.prev_destination == -1:
+            if e.destination[1] == "cc0":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num-1][e.destination_floor] = False
+            elif e.destination[1] == "lc":
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num-1][e.destination_floor] = False
+                check = True
+                for index in range(e.destination_floor - 1, -1, -1):
+                    if cc[index][0] or cc[index][1]:
+                        check = False
+                    if lc[e.id_num-1][index]:
+                        check = False
+                    if check:
+                        cc[e.destination_floor][1] = False
+            elif e.destination[1] == "cc1":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+        else:
+            if e.destination[1][:2] == "cc":
+                if cc[e.destination_floor][int(e.destination[1][2])]:
+                    cc[e.destination_floor][int(e.destination[1][2])] = False
+                else:
+                    raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
+                                     e.destination)
+            elif e.destination[1][:2] == "lc":
+                if lc[e.id_num - 1][e.destination_floor]:
+                    lc[e.id_num - 1][e.destination_floor] = False
+                else:
+                    raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
+                                     e.destination)
+    global run_main_algorithm
+    run_main_algorithm = True
+    e.call_done = False
+
 
 def w_time():
     true_num=0
@@ -346,7 +453,6 @@ command = [[elevator1.location / Building.floor_height + 1, "uncalled"],
 wtime = 0
 
 while True:
-
     input_to_call()
     if run_main_algorithm:
         command = call_to_command(elevator1, elevator2)
@@ -363,31 +469,35 @@ while True:
         elevator1.door_close()
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
+
     elevator1.move_to_destination(command[0][0], command[0][1])
     elevator2.move_to_destination(command[1][0], command[1][1])
-
-
     update_call(elevator1)
     update_call(elevator2)
-    wtime = wtime + w_time()
+    wtime = wtime + update_evaluation_factor()
     print(elevator1)
     print(elevator2)
-    print("=" * 30)
+    print("=" * 120)
+
     # GUI codes
     print_background()
     # Display variables(time & watt)
     watts_str = str(watts)
     text_watts = font.render(watts_str, True, black)
-    time_str = str(round(wtime,3))
+    time_str = str(round(wtime, 3))
     text_wtime = font.render(time_str, True, black)
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))
     # Display two elevators
 
-    pygame.draw.rect(screen, grey, [30 - elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
-    pygame.draw.rect(screen, grey, [55 + elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
-    pygame.draw.rect(screen, grey, [170 - elevator2.opening_sequence, int(400 - elevator2.location * 40), 25, SIZE])
-    pygame.draw.rect(screen, grey, [195 + elevator2.opening_sequence, int(400 - elevator2.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [
+                     30 - elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [
+                     55 + elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [
+                     170 - elevator2.opening_sequence, int(400 - elevator2.location * 40), 25, SIZE])
+    pygame.draw.rect(screen, grey, [
+                     195 + elevator2.opening_sequence, int(400 - elevator2.location * 40), 25, SIZE])
 
     # Display button inputs
     for i in range(len(lc)):
@@ -396,18 +506,23 @@ while True:
                 if j == 6:
                     pygame.draw.circle(screen, yellow, (410 + i * 57, 700), 15)
                 else:
-                    pygame.draw.circle(screen, yellow, (410 + i * 57, 600 - j * SIZE), 15)
+                    pygame.draw.circle(
+                        screen, yellow, (410 + i * 57, 600 - j * SIZE), 15)
             else:
                 if j == 6:
-                    pygame.draw.circle(screen, black, (410 + i * 57, 700), 15, 5)
+                    pygame.draw.circle(
+                        screen, black, (410 + i * 57, 700), 15, 5)
                 else:
-                    pygame.draw.circle(screen, black, (410 + i * 57, 600 - j * SIZE), 15, 5)
+                    pygame.draw.circle(
+                        screen, black, (410 + i * 57, 600 - j * SIZE), 15, 5)
     for i in range(len(cc)):
         for j in range(len(cc[i])):
             if cc[i][j]:
-                pygame.draw.circle(screen, yellow, (540 + j * 80, 600 - i * SIZE), 15)
+                pygame.draw.circle(
+                    screen, yellow, (540 + j * 80, 600 - i * SIZE), 15)
             else:
-                pygame.draw.circle(screen, black, (540 + j * 80, 600 - i * SIZE), 15, 5)
+                pygame.draw.circle(
+                    screen, black, (540 + j * 80, 600 - i * SIZE), 15, 5)
 
     # If there's a key input "ESC", quit the displaying
     for event in pygame.event.get():

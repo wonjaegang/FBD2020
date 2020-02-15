@@ -204,7 +204,7 @@ def call_to_command(e1, e2):
                     calls[0].append([floor, "cc" + str(call_type)])
                 elif call_type == 0:
                     calls[1].append([floor, "cc" + str(call_type)])
-                else:
+                else    :
                     calls[0].append([floor, "cc" + str(call_type)])
                     calls[1].append([floor, "cc" + str(call_type)])
     for id_num in range(2):
