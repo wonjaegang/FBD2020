@@ -207,7 +207,6 @@ def call_to_command(e1, e2):
     print("Elevator2 location before command : %f" % e2.location)
     # # # # # # # # # # # # # # # # # # # # # # # #
     # TO-DO LIST
-    # 명백히는 이중할당이 아님 -> 겹치게 콜 하고, raise ValueError를 지워볼까
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
