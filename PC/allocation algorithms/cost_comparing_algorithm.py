@@ -213,7 +213,7 @@ def call_to_command(e1, e2):
     w_time = decimal.Decimal(0.7)
     w_power = decimal.Decimal(0.0)
     w_consistency = decimal.Decimal(0.3)
-    assert (w_time + w_power + w_consistency == 1), "Sum of weight values is not 1"
+    assert (round(w_time + w_power + w_consistency, 1) == 1), "Sum of weight values is not 1"
 
     # Put lc / cc values to car_calls and lc_calls list
     car_calls = []
