@@ -223,20 +223,25 @@ def call_to_command(e1, e2):
                         calls[id_num].append([floor, "lc"])
                     else:
                         lc[id_num][floor] = False
-    
+
     if e1.destination[1] == e2.destination[1] == "uncalled":
         if len(calls[0]) == len(calls[1]) == 1:
             if calls[0][0][1][:2] == "cc":
                 if calls[0] == calls[1]:
-                    distance1 = abs(e1.location /decimal.Decimal(2.5) + 1 - calls[0][0][0])
-                    distance2 = abs(e2.location /decimal.Decimal(2.5) + 1 - calls[0][0][0])
+                    distance1 = abs(
+                        e1.location / decimal.Decimal(2.5) + 1 - calls[0][0][0])
+                    distance2 = abs(
+                        e2.location / decimal.Decimal(2.5) + 1 - calls[0][0][0])
                     if (distance2 - distance1) > 0:
                         e1_destination_call = calls[0][0]
-                        e2_destination_call = [e2.destination_floor, "uncalled"]
+                        e2_destination_call = [
+                            e2.destination_floor, "uncalled"]
                     else:
                         e2_destination_call = calls[1][0]
-                        e1_destination_call = [e1.destination_floor, "uncalled"]
-                    destination_call = [e1_destination_call, e2_destination_call]  # example
+                        e1_destination_call = [
+                            e1.destination_floor, "uncalled"]
+                    destination_call = [e1_destination_call,
+                                        e2_destination_call]  # example
                     print(destination_call)
                     return destination_call
 
