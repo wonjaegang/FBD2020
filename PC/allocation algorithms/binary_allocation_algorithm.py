@@ -387,12 +387,12 @@ def update_call(e):
             elif e.destination[1] == "lc":
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num-1][e.destination_floor] = False
-                check = True
-                for index in range(e.destination_floor - 1, -1, -1):
+                check = False
+                for index in range(e.destination_floor, -1, -1):
                     if cc[index][0] or cc[index][1]:
-                        check = False
+                        check = True
                     if lc[e.id_num-1][index]:
-                        check = False
+                        check = True
                     if check:
                         cc[e.destination_floor][1] = False
             elif e.destination[1] == "cc1":
