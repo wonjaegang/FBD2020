@@ -152,20 +152,8 @@ def input_to_call():
 
     data = b''
     if count == 10:
-        data = b'J\r\n'
-    if count == 20:
-        data = b'D\r\n'
-    if count == 21:
-        data = b'I\r\n'
-    if count == 60:
-        data = b'Q\r\n'
-    if count == 100:
-        data = b'N\r\n'
-        data = b'P\r\n'
-    if count == 140:
-        data = b'L\r\n'
-    if count == 400:
-        data = b'E\r\n'
+        data = b'A\r\n'
+
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
         int.from_bytes(b'A\r\n', "little")
@@ -225,12 +213,12 @@ def call_to_command(e1, e2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
                 if id_num == 0:
-                    if floor == 2 or floor == 4:
+                    if floor != 3 or floor != 5:
                         calls[id_num].append([floor, "lc"])
                     else:
                         lc[id_num][floor] = False
                 else:
-                    if floor == 3 or floor == 5:
+                    if floor != 2 or floor != 4:
                         calls[id_num].append([floor, "lc"])
                     else:
                         lc[id_num][floor] = False
