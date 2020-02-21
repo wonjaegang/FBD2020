@@ -1,4 +1,4 @@
-//upload this on the Arduino which gets cars' button
+//upload this on the Arduino which gets lc
 
 //this Arduino only uses I2C communication
 

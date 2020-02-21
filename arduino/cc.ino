@@ -1,4 +1,4 @@
-//upload this on the Arduino which gets layers' buttons
+//upload this on the Arduino which gets cc
 
 //this Arduino only uses SoftwareSerial communication
 
