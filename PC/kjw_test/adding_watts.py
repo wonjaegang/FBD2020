@@ -2,8 +2,10 @@ import decimal
 import serial
 import sys
 import pygame
+import time
+import itertools
 
-ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
+# ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
 
 # define variables for GUI screen
 SCREEN_WIDTH = 1200
@@ -30,9 +32,9 @@ text_2 = font.render("2", True, black)
 text_3 = font.render("3", True, black)
 text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
-text_power = font.render("power: ", True, black)
-text_time = font.render("waiting time: ", True, black)
-text_loop_count = font.render("loop count: ", True, black)
+text_power = font.render("power:                     kWh", True, black)
+text_time = font.render("waiting time:                 sec", True, black)
+text_loop_count = font.render("loop count:                    sec", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
@@ -137,12 +139,19 @@ run_main_algorithm = False
 watts = 0
 wtime = 0
 count = 0
+# moved distance with constant direction. [[e1 direction(1, 0, -1), e1 distance(m)], [e2~, e2~]]
+moved_distance = [[0, 0], [0, 0]]
 
 
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
 def input_to_call():
-    data = ardu.readline()
+    # data = ardu.readline()
+    data = b''
+    if count == 10:
+        data = b'J\r\n'
+    if count == 120:
+        data = b'L\r\n'
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
@@ -183,17 +192,105 @@ def call_to_command(e1, e2):
     #                                             #
     # # # # # # # # # # # # # # # # # # # # # # # #
     #
-    # Algorithm explanation here. Should be EVIDENT
+    # Cost comparing algorithm :
+    #               Simulate every number of cases and calculate the cost of each case. Select the case that have
+    #               lowest cost.
+    #           cost_time :
+    #           cost_power :
+    #           cost_consistency :
+    #           cost_total = cost_time * Wt + cost_power * Wp + cost_consistency * Wc
     #
-    # MUST change call_type to "uncalled" after arrived
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-    # example algorithm
-    e1_destination_call = [2, "cc0"]
-    e2_destination_call = [5, "lc"]
+    # Set weight values
+    w_time = decimal.Decimal(0.7)
+    w_power = decimal.Decimal(0.0)
+    w_consistency = decimal.Decimal(0.3)
+    assert (round(w_time + w_power + w_consistency, 1) == 1), "Sum of weight values is not 1"
+
+    # Put lc / cc values to car_calls and lc_calls list
+    car_calls = []
+    lc_calls = [[], []]
+    for floor in range(Building.whole_floor):
+        for call_type in range(2):
+            if cc[floor][call_type]:
+                car_calls.append([floor, "cc" + str(call_type)])
+    for id_num in range(2):
+        for floor in range(Building.whole_floor):
+            if lc[id_num][floor]:
+                lc_calls[id_num].append([floor, "lc"])
+
+    # Slice car_calls list with number of all cases
+    lowest_cost = decimal.Decimal(1000000.0)
+    e1_destination_call = []
+    e2_destination_call = []
+    for slice_case in range(pow(2, len(car_calls))):
+        calls = [[], []]
+        # Change slice_case variable to binary number
+        # Put car_calls value to calls[[], []], referring to slice_case
+        for i in range(len(car_calls)):
+            calls[int(format(slice_case, 'b').zfill(len(car_calls))[i])].append(car_calls[i])
+        # Put lc_calls to calls[[], []]
+        for id_num in range(2):
+            calls[id_num] += lc_calls[id_num]
+        print("Car-call slice of this loop : ", end='')
+        print(calls)
+        # Put every case of e1's move into whole_cases1, as tuple, using permutation iterator
+        whole_cases1 = list(itertools.permutations(calls[0], len(calls[0])))
+        for case_num1 in range(len(whole_cases1)):
+            # Put every case of e2's move into whole_cases2, as tuple, using permutation iterator
+            # -> total number of cases : car_call slice case * e1's move case * e2's move case
+            whole_cases2 = list(itertools.permutations(calls[1], len(calls[1])))
+            for case_num2 in range(len(whole_cases2)):
+                cost_time = 0
+                cost_power = 0
+                cost_consistency = 0
+                # Calculate estimated waiting time of passengers in specific case
+                # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
+                if len(whole_cases1[case_num1]) != 0:
+                    # Waiting time from current location & opening sequence to first destination
+                    cost_time += (abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
+                                  + e1.opening_sequence) * len(whole_cases1[case_num1])
+                    # Waiting time from second destination to last destination
+                    for i in range(len(whole_cases1[case_num1]) - 1):
+                        cost_time += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
+                                      * Building.floor_height + Elevator.door_operating_time) \
+                                      * (len(whole_cases1[case_num1]) - 1 - i)
+                # e2 : Just same with e1
+                if len(whole_cases2[case_num2]) != 0:
+                    cost_time += (abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
+                                  + e2.opening_sequence) * len(whole_cases2[case_num2])
+                    for i in range(len(whole_cases2[case_num2]) - 1):
+                        cost_time += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
+                                      * Building.floor_height + Elevator.door_operating_time) \
+                                      * (len(whole_cases2[case_num2]) - 1 - i)
+
+                # Main sentence of this algorithm. Calculate total cost with given weight-values
+                cost_total = cost_time * w_time + cost_power * w_power + cost_consistency * w_consistency
+                if cost_total < lowest_cost:
+                    lowest_cost = cost_total
+                    if len(whole_cases1[case_num1]) == 0:
+                        e1_destination_call = [e1.destination_floor, "uncalled"]
+                    elif e1.opening_sequence > 0:
+                        e1_destination_call = [e1.destination_floor, "uncalled"]
+                    else:
+                        e1_destination_call = whole_cases1[case_num1][0]
+                    if len(whole_cases2[case_num2]) == 0:
+                        e2_destination_call = [e2.destination_floor, "uncalled"]
+                    elif e2.opening_sequence > 0:
+                        e2_destination_call = [e2.destination_floor, "uncalled"]
+                    else:
+                        e2_destination_call = whole_cases2[case_num2][0]
+                print("case(%dth e1 case, %dth e2 case) : " % (case_num1, case_num2), end='')
+                print(whole_cases1[case_num1], whole_cases2[case_num2], "-> ", end='')
+                print("waiting time : %.2f, watts : %.2f, consistency : %0.2f, total cost : %.2f"
+                      % (cost_time, cost_power, cost_consistency, cost_total))
+        print("-" * 5)
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
     # call type : "lc" : landing call, "cc0" : car call - down, "cc1" : car call - up, "uncalled" : command without call
     destination_call = [e1_destination_call, e2_destination_call]  # example
+    print("selected destination :", destination_call)
     return destination_call
 
 
@@ -217,17 +314,39 @@ def update_call(e):
         e.call_done = False
 
 
-def update_evaluation_factor():
-    true_num = 0
+# Calculate evaluation factors : waiting time, power consumption
+def update_evaluation_factor(e1, e2):
+    cc_true_num = 0
+    lc_true_num = [0, 0]
     for i in range(len(cc)):  # cc true
         for j in range(len(cc[i])):
             if cc[i][j]:
-                true_num += 1
+                cc_true_num += 1
     for i in range(len(lc)):  # lc true
         for j in range(len(lc[i])):
             if lc[i][j]:
-                true_num += 1
-    return true_num * 0.1
+                lc_true_num[i] += 1
+    # Calculate waiting time
+    wtime_per_loop = (cc_true_num + lc_true_num[0] + lc_true_num[1]) * 0.1
+    # Calculate power consumption
+    loop_time = decimal.Decimal(0.1)
+    operating_power = 2
+    e_direction = [e1.v_direction, e2.v_direction]
+    power_per_loop = [0, 0]
+    for i in range(2):
+        ps_weight = lc_true_num[i] * 70
+        power_constant = decimal.Decimal(15.5) * (1 - e_direction[i]) / 2 \
+            + (decimal.Decimal((28 + 8) / 1350) * ps_weight - 8) * e1.v_direction
+        if moved_distance[i][0]:
+            if not moved_distance[i][1]:
+                power_per_loop[i] = (Building.floor_height / Elevator.speed) * power_constant * loop_time
+            elif moved_distance[i][1] > Building.floor_height:
+                power_per_loop[i] = power_constant * loop_time
+            else:
+                power_per_loop[i] = operating_power * loop_time
+        else:
+            power_per_loop[i] = operating_power * loop_time
+    return [wtime_per_loop, power_per_loop[0] + power_per_loop[1]]
 
 
 # Make instances and initialize their id and initial position
@@ -256,9 +375,23 @@ while True:
     elevator1.move_to_destination(command[0][0], command[0][1])
     elevator2.move_to_destination(command[1][0], command[1][1])
 
+    # Turn off completed calls
     update_call(elevator1)
     update_call(elevator2)
-    wtime = wtime + update_evaluation_factor()
+
+    # Update evaluation factors : waiting time, power consumption
+    if elevator1.v_direction == moved_distance[0][0]:
+        moved_distance[0][1] += Elevator.speed
+    else:
+        moved_distance[0][0] = elevator1.v_direction
+        moved_distance[0][1] = 0
+    if elevator2.v_direction == moved_distance[1][0]:
+        moved_distance[1][1] += Elevator.speed
+    else:
+        moved_distance[1][0] = elevator2.v_direction
+        moved_distance[1][1] = Elevator.speed
+    wtime = wtime + update_evaluation_factor(elevator1, elevator2)[0]
+    watts = watts + update_evaluation_factor(elevator1, elevator2)[1]
     print(elevator1)
     print(elevator2)
     print("=" * 30)
@@ -266,11 +399,11 @@ while True:
     # GUI codes
     print_background()
     # Display variables(time & watt)
-    watts_str = str(watts)
+    watts_str = str(round(watts / 3600, 4))
     text_watts = font.render(watts_str, True, black)
     time_str = str(round(wtime, 3))
     text_wtime = font.render(time_str, True, black)
-    count_str = str(count)
+    count_str = str(count / 10)
     text_count = font.render(count_str, True, black)
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))
@@ -310,4 +443,5 @@ while True:
             sys.exit()
 
     pygame.display.update()
+    time.sleep(0.1)
     count = count + 1
