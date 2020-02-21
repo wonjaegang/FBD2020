@@ -30,9 +30,9 @@ text_2 = font.render("2", True, black)
 text_3 = font.render("3", True, black)
 text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
-text_power = font.render("power: ", True, black)
-text_time = font.render("waiting time: ", True, black)
-text_loop_count = font.render("loop count: ", True, black)
+text_power = font.render("power:                     kWh", True, black)
+text_time = font.render("waiting time:                 sec", True, black)
+text_loop_count = font.render("loop count:                    sec", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
@@ -62,12 +62,12 @@ def print_background():
 # Class indicates specification of the building. Use decimal module to avoid floating point error
 # 0th floor is a basement floor
 class Building:
-        floor_height = decimal.Decimal('2.5')
-        lowest_f = 0
-        highest_f = 5
-        lowest_m = floor_height * (lowest_f - 1)
-        highest_m = floor_height * (highest_f - 1)
-        whole_floor = highest_f - lowest_f + 1
+    floor_height = decimal.Decimal('2.5')
+    lowest_f = 0
+    highest_f = 5
+    lowest_m = floor_height * (lowest_f - 1)
+    highest_m = floor_height * (highest_f - 1)
+    whole_floor = highest_f - lowest_f + 1
 
 
 class Elevator:
@@ -137,6 +137,8 @@ run_main_algorithm = False
 watts = 0
 wtime = 0
 count = 0
+# moved distance with constant direction. [[e1 direction(1, 0, -1), e1 distance(m)], [e2~, e2~]]
+moved_distance = [[0, 0], [0, 0]]
 
 
 # Function that converts button inputs to the Car Calls and the Landing Calls
@@ -217,17 +219,39 @@ def update_call(e):
         e.call_done = False
 
 
-def update_evaluation_factor():
-    true_num = 0
+# Calculate evaluation factors : waiting time, power consumption
+def update_evaluation_factor(e1, e2):
+    cc_true_num = 0
+    lc_true_num = [0, 0]
     for i in range(len(cc)):  # cc true
         for j in range(len(cc[i])):
             if cc[i][j]:
-                true_num += 1
+                cc_true_num += 1
     for i in range(len(lc)):  # lc true
         for j in range(len(lc[i])):
             if lc[i][j]:
-                true_num += 1
-    return true_num * 0.1
+                lc_true_num[i] += 1
+    # Calculate waiting time
+    wtime_per_loop = (cc_true_num + lc_true_num[0] + lc_true_num[1]) * 0.1
+    # Calculate power consumption
+    loop_time = decimal.Decimal(0.1)
+    operating_power = 2
+    e_direction = [e1.v_direction, e2.v_direction]
+    power_per_loop = [0, 0]
+    for i in range(2):
+        ps_weight = lc_true_num[i] * 70
+        power_constant = decimal.Decimal(15.5) * (1 - e_direction[i]) / 2 \
+            + (decimal.Decimal((28 + 8) / 1350) * ps_weight - 8) * e1.v_direction
+        if moved_distance[i][0]:
+            if not moved_distance[i][1]:
+                power_per_loop[i] = (Building.floor_height / Elevator.speed) * power_constant * loop_time
+            elif moved_distance[i][1] > Building.floor_height:
+                power_per_loop[i] = power_constant * loop_time
+            else:
+                power_per_loop[i] = operating_power * loop_time
+        else:
+            power_per_loop[i] = operating_power * loop_time
+    return [wtime_per_loop, power_per_loop[0] + power_per_loop[1]]
 
 
 # Make instances and initialize their id and initial position
@@ -256,9 +280,23 @@ while True:
     elevator1.move_to_destination(command[0][0], command[0][1])
     elevator2.move_to_destination(command[1][0], command[1][1])
 
+    # Turn off completed calls
     update_call(elevator1)
     update_call(elevator2)
-    wtime = wtime + update_evaluation_factor()
+
+    # Update evaluation factors : waiting time, power consumption
+    if elevator1.v_direction == moved_distance[0][0]:
+        moved_distance[0][1] += Elevator.speed
+    else:
+        moved_distance[0][0] = elevator1.v_direction
+        moved_distance[0][1] = 0
+    if elevator2.v_direction == moved_distance[1][0]:
+        moved_distance[1][1] += Elevator.speed
+    else:
+        moved_distance[1][0] = elevator2.v_direction
+        moved_distance[1][1] = Elevator.speed
+    wtime = wtime + update_evaluation_factor(elevator1, elevator2)[0]
+    watts = watts + update_evaluation_factor(elevator1, elevator2)[1]
     print(elevator1)
     print(elevator2)
     print("=" * 30)
@@ -266,11 +304,11 @@ while True:
     # GUI codes
     print_background()
     # Display variables(time & watt)
-    watts_str = str(watts)
+    watts_str = str(round(watts / 3600, 4))
     text_watts = font.render(watts_str, True, black)
     time_str = str(round(wtime, 3))
     text_wtime = font.render(time_str, True, black)
-    count_str = str(count)
+    count_str = str(count / 10)
     text_count = font.render(count_str, True, black)
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))

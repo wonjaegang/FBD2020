@@ -32,9 +32,9 @@ text_2 = font.render("2", True, black)
 text_3 = font.render("3", True, black)
 text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
-text_power = font.render("power: ", True, black)
-text_time = font.render("waiting time: ", True, black)
-text_loop_count = font.render("loop count: ", True, black)
+text_power = font.render("power:                     kWh", True, black)
+text_time = font.render("waiting time:                 sec", True, black)
+text_loop_count = font.render("loop count:                    sec", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
@@ -314,6 +314,7 @@ def update_call(e):
         e.call_done = False
 
 
+# Calculate evaluation factors : waiting time, power consumption
 def update_evaluation_factor(e1, e2):
     cc_true_num = 0
     lc_true_num = [0, 0]
@@ -330,19 +331,22 @@ def update_evaluation_factor(e1, e2):
     # Calculate power consumption
     loop_time = decimal.Decimal(0.1)
     operating_power = 2
-    ps_weight = lc_true_num[0] * 70
-    power_constant = decimal.Decimal(15.5) * (1 - e1.v_direction) / 2 \
-        + (decimal.Decimal((28 + 8) / 1350) * ps_weight - 8) * e1.v_direction
-    if moved_distance[0][0]:
-        if not moved_distance[0][1]:
-            power_per_loop = (Building.floor_height / Elevator.speed) * power_constant * loop_time
-        elif moved_distance[0][1] > Building.floor_height:
-            power_per_loop = power_constant * loop_time
+    e_direction = [e1.v_direction, e2.v_direction]
+    power_per_loop = [0, 0]
+    for i in range(2):
+        ps_weight = lc_true_num[i] * 70
+        power_constant = decimal.Decimal(15.5) * (1 - e_direction[i]) / 2 \
+            + (decimal.Decimal((28 + 8) / 1350) * ps_weight - 8) * e1.v_direction
+        if moved_distance[i][0]:
+            if not moved_distance[i][1]:
+                power_per_loop[i] = (Building.floor_height / Elevator.speed) * power_constant * loop_time
+            elif moved_distance[i][1] > Building.floor_height:
+                power_per_loop[i] = power_constant * loop_time
+            else:
+                power_per_loop[i] = operating_power * loop_time
         else:
-            power_per_loop = operating_power * loop_time
-    else:
-        power_per_loop = operating_power * loop_time
-    return [wtime_per_loop, power_per_loop]
+            power_per_loop[i] = operating_power * loop_time
+    return [wtime_per_loop, power_per_loop[0] + power_per_loop[1]]
 
 
 # Make instances and initialize their id and initial position
@@ -395,11 +399,11 @@ while True:
     # GUI codes
     print_background()
     # Display variables(time & watt)
-    watts_str = str(round(watts, 1))
+    watts_str = str(round(watts / 3600, 4))
     text_watts = font.render(watts_str, True, black)
     time_str = str(round(wtime, 3))
     text_wtime = font.render(time_str, True, black)
-    count_str = str(count)
+    count_str = str(count / 10)
     text_count = font.render(count_str, True, black)
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))
