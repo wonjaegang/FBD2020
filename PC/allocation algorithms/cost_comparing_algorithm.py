@@ -6,7 +6,8 @@ import random
 import time
 import itertools
 
-#ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
+# ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
+loop_time = decimal.Decimal(0.1)
 
 # define variables for GUI screen
 SCREEN_WIDTH = 1200
@@ -35,7 +36,7 @@ text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
 text_power = font.render("power:                     kWh", True, black)
 text_time = font.render("waiting time:                 sec", True, black)
-text_loop_count = font.render("loop count:                    sec", True, black)
+text_loop_count = font.render("loop count:                     sec", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
@@ -259,20 +260,21 @@ def call_to_command(e1, e2):
                 if len(whole_cases1[case_num1]) != 0:
                     # Waiting time from current location & opening sequence to first destination
                     cost_time += (abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
-                                  + e1.opening_sequence) * len(whole_cases1[case_num1])
+                                  + e1.opening_sequence * loop_time) * len(whole_cases1[case_num1])
                     # Waiting time from second destination to last destination
                     for i in range(len(whole_cases1[case_num1]) - 1):
                         cost_time += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
-                                      * Building.floor_height + Elevator.door_operating_time) \
+                                      * Building.floor_height + Elevator.door_operating_time * loop_time) \
                                        * (len(whole_cases1[case_num1]) - 1 - i)
                 # e2 : Just same with e1
                 if len(whole_cases2[case_num2]) != 0:
                     cost_time += (abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
-                                  + e2.opening_sequence) * len(whole_cases2[case_num2])
+                                  + e2.opening_sequence * loop_time) * len(whole_cases2[case_num2])
                     for i in range(len(whole_cases2[case_num2]) - 1):
                         cost_time += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
-                                      * Building.floor_height + Elevator.door_operating_time) \
+                                      * Building.floor_height + Elevator.door_operating_time * loop_time) \
                                        * (len(whole_cases2[case_num2]) - 1 - i)
+                # Calculate estimated power consumption of e1 & e2 in specific case
 
                 # Main sentence of this algorithm. Calculate total cost with given weight-values
                 cost_total = cost_time * w_time + cost_power * w_power + cost_consistency * w_consistency
@@ -338,7 +340,6 @@ def update_evaluation_factor(e1, e2):
     # Calculate waiting time
     wtime_per_loop = (cc_true_num + lc_true_num[0] + lc_true_num[1]) * 0.1
     # Calculate power consumption
-    loop_time = decimal.Decimal(0.1)
     operating_power = 2
     e_direction = [e1.v_direction, e2.v_direction]
     power_per_loop = [0, 0]
