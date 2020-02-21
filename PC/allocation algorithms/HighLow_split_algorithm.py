@@ -407,8 +407,6 @@ def update_call(e):
             elif e.destination[1] == "cc0":
                 if cc[e.destination_floor][int(e.destination[1][2])]:
                     cc[e.destination_floor][int(e.destination[1][2])] = False
-                    if e.destination_floor == 5:
-                        lc[e.id_num-1][5] = False
         elif e.prev_destination == -1:
             if e.destination[1] == "cc0":
                 if cc[e.destination_floor][int(e.destination[1][2])]:
@@ -418,19 +416,18 @@ def update_call(e):
             elif e.destination[1] == "lc":
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num-1][e.destination_floor] = False
-                check = True
-                for index in range(e.destination_floor - 1, -1, -1):
+                check = False
+                for index in range(e.destination_floor, -1, -1):
+                    print(index)
                     if cc[index][0] or cc[index][1]:
-                        check = False
+                        check = True
                     if lc[e.id_num-1][index]:
-                        check = False
+                        check = True
                     if check:
                         cc[e.destination_floor][1] = False
             elif e.destination[1] == "cc1":
                 if cc[e.destination_floor][int(e.destination[1][2])]:
                     cc[e.destination_floor][int(e.destination[1][2])] = False
-                    if e.destination_floor == 0:
-                        lc[e.id_num-1][0] = False
         else:
             if e.destination[1][:2] == "cc":
                 if cc[e.destination_floor][int(e.destination[1][2])]:
