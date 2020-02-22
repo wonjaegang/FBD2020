@@ -148,20 +148,105 @@ moved_distance = [[0, 0], [0, 0]]
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
 def input_to_call():
-    #data = ardu.readline()
+    # data = ardu.readline()
     data = b''
-    if count == 10:
-        data = b'J\r\n'
-    if count == 20:
-        data = b'D\r\n'
-    if count == 21:
-        data = b'I\r\n'
-    if count == 60:
-        data = b'Q\r\n'
+    # Get to Work
+    # if count == 100:
+    #     data = b'C\r\n'
+    # if count == 101:
+    #     data = b'O\r\n'
+    # if count == 102:
+    #     data = b'P\r\n'
+    # if count == 150:
+    #     data = b'C\r\n'
+    # if count == 151:
+    #     data = b'T\r\n'
+    # if count == 250:
+    #     data = b'J\r\n'
+    # if count == 251:
+    #     data = b'L\r\n'
+    # if count == 300:
+    #     data = b'A\r\n'
+    # if count == 380:
+    #     data = b'S\r\n'
+
+    # Get off Work
+    # if count == 100:
+    #     data = b'J\r\n'
+    # if count == 230:
+    #     data = b'Q\r\n'
+    # if count == 231:
+    #     data = b'R\r\n'
+    # if count == 120:
+    #     data = b'H\r\n'
+    # if count == 190:
+    #     data = b'L\r\n'
+    # if count == 200:
+    #     data = b'C\r\n'
+    # if count == 280:
+    #     data = b'P\r\n'
+    # if count == 240:
+    #     data = b'G\r\n'
+    # if count == 290:
+    #     data = b'V\r\n'
+    # if count == 300:
+    #     data = b'J\r\n'
+    # if count == 420:
+    #     data = b'K\r\n'
+    # if count == 421:
+    #     data = b'L\r\n'
+
+    # Lunch time
+    # if count == 100:
+    #     data = b'J\r\n'
+    # if count == 210:
+    #     data = b'R\r\n'
+    # if count == 101:
+    #     data = b'D\r\n'
+    # if count == 129:
+    #     data = b'L\r\n'
+    # if count == 130:
+    #     data = b'C\r\n'
+    # if count == 170:
+    #     data = b'O\r\n'
+    # if count == 180:
+    #     data = b'F\r\n'
+    # if count == 260:
+    #     data = b'L\r\n'
+    # if count == 181:
+    #     data = b'C\r\n'
+    # if count == 190:
+    #     data = b'P\r\n'
+    # if count == 240:
+    #     data = b'C\r\n'
+    # if count == 330:
+    #     data = b'U\r\n'
+    # if count == 300:
+    #     data = b'H\r\n'
+    # if count == 420:
+    #     data = b'K\r\n'
+
+    # Slack hours
     if count == 100:
-        data = b'N\r\n'
-    if count == 140:
+        data = b'J\r\n'
+    if count == 202:
         data = b'L\r\n'
+    if count == 400:
+        data = b'C\r\n'
+    if count == 402:
+        data = b'O\r\n'
+    if count == 700:
+        data = b'D\r\n'
+    if count == 730:
+        data = b'Q\r\n'
+    if count == 1000:
+        data = b'F\r\n'
+    if count == 1030:
+        data = b'L\r\n'
+    if count == 1300:
+        data = b'C\r\n'
+    if count == 1310:
+        data = b'K\r\n'
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
@@ -256,6 +341,8 @@ def call_to_command(e1, e2):
                 cost_power = 0
                 cost_consistency = 0
                 # Calculate estimated waiting time of passengers in specific case
+                # Bug : 층에 도착하여 문이 열려있는 상태에서, 동일한 층의 car call 이 들어오면
+                #       현재의 opening sequence 를 무시해야하지만, 무시하지 않음
                 # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
                 if len(whole_cases1[case_num1]) != 0:
                     # Waiting time from current location & opening sequence to first destination
@@ -283,13 +370,19 @@ def call_to_command(e1, e2):
                     if len(whole_cases1[case_num1]) == 0:
                         e1_destination_call = [e1.destination_floor, "uncalled"]
                     elif e1.opening_sequence > 0:
-                        e1_destination_call = [e1.destination_floor, "uncalled"]
+                        if whole_cases1[case_num1][0][0] == e1.destination_floor:
+                            e1_destination_call = whole_cases1[case_num1][0]
+                        else:
+                            e1_destination_call = [e1.destination_floor, "uncalled"]
                     else:
                         e1_destination_call = whole_cases1[case_num1][0]
                     if len(whole_cases2[case_num2]) == 0:
                         e2_destination_call = [e2.destination_floor, "uncalled"]
                     elif e2.opening_sequence > 0:
-                        e2_destination_call = [e2.destination_floor, "uncalled"]
+                        if whole_cases2[case_num2][0][0] == e2.destination_floor:
+                            e2_destination_call = whole_cases2[case_num2][0]
+                        else:
+                            e2_destination_call = [e2.destination_floor, "uncalled"]
                     else:
                         e2_destination_call = whole_cases2[case_num2][0]
                 print("case(%dth e1 case, %dth e2 case) : " % (case_num1, case_num2), end='')
@@ -454,5 +547,5 @@ while True:
             sys.exit()
 
     pygame.display.update()
-    time.sleep(0.1)
+    time.sleep(0.01)
     count = count + 1
