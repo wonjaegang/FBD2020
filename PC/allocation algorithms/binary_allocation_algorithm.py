@@ -35,7 +35,8 @@ text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
 text_power = font.render("power:                     kWh", True, black)
 text_time = font.render("waiting time:                 sec", True, black)
-text_loop_count = font.render("loop count:                    sec", True, black)
+text_loop_count = font.render(
+    "loop count:                    sec", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
@@ -63,6 +64,8 @@ def print_background():
 
 # Class indicates specification of the building. Use decimal module to avoid floating point error
 # 0th floor is a basement floor
+
+
 class Building:
     floor_height = decimal.Decimal('2.5')
     lowest_f = 0
@@ -151,6 +154,8 @@ moved_distance = [[0, 0], [0, 0]]
 
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
+
+
 def input_to_call():
 
     data = ardu.readline()
@@ -441,7 +446,8 @@ def update_evaluation_factor(e1, e2):
             + (decimal.Decimal((28 + 8) / 1350) * ps_weight - 8) * e1.v_direction
         if moved_distance[i][0]:
             if not moved_distance[i][1]:
-                power_per_loop[i] = (Building.floor_height / Elevator.speed) * power_constant * loop_time
+                power_per_loop[i] = (Building.floor_height / Elevator.speed / 2) \
+                                    * (power_constant - operating_power) * loop_time
             elif moved_distance[i][1] > Building.floor_height:
                 power_per_loop[i] = power_constant * loop_time
             else:
@@ -474,7 +480,7 @@ while True:
         elevator1.door_close()
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
-        
+
     if lc[0][6] and elevator1.destination[1] == "uncalled":
         elevator1.door_open()
     if lc[1][6] and elevator2.destination[1] == "uncalled":
@@ -506,7 +512,7 @@ while True:
     # GUI codes
     print_background()
 
-        # Display variables(time & watt)
+    # Display variables(time & watt)
     watts_str = str(round(watts / 3600, 4))
     text_watts = font.render(watts_str, True, black)
     time_str = str(round(wtime, 3))
@@ -516,7 +522,7 @@ while True:
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))
     screen.blit(text_count, (1050, 3 * SIZE - 30))
-    
+
     # Display two elevators
     pygame.draw.rect(screen, grey, [
                      30 - elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
