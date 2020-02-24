@@ -366,9 +366,8 @@ def call_to_command(e1, e2):
 
                 # Calculate estimated power consumption of e1 & e2 in specific case
                 # 함수를 사용해 반복되는 코드를 간소화시키는 것이 꼭 필요, 일단은 구동만 되도록 해놓음
-                #
-                # ##############쉬는 엘리베이터의 가동전력 계산코드 필요
-                # ##############엘레베이터에 할당된 움직임이 없을 때 else문으로 갈 곳이 필요y''=
+                # ##############쉬는 엘리베이터의 가동전력 계산코드 필요!!!!!!!!!!
+                # 아마도 가동전력은 따로 계산하는게 좋지 않을까 싶음. 현재코드는 쉬는 엘레베이터의 가동전력 고려 X
                 # ;Elevator 1 power consumption
                 if len(whole_cases1[case_num1]):
                     # 현재 위치에서 첫 목적지까지 움직일 때의 소비전력 계산
@@ -384,9 +383,9 @@ def call_to_command(e1, e2):
                     moved = abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
                     # 같은 층에서의 input 은 바로 처리되기에, 문이 닫히는 동안의 소비전력만 계산하면 됨
                     if direction:
-                        cost_power += k * (moved - Building.floor_height) \
-                                      + Building.floor_height * Elevator.operating_power / 2 \
-                                      + Elevator.door_operating_time * loop_time * Elevator.operating_power
+                        cost_power += moved * Elevator.operating_power \
+                                     + (k - Elevator.operating_power) * (moved - Building.floor_height / 2) \
+                                     + Elevator.door_operating_time * loop_time * Elevator.operating_power
                     else:
                         cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
                     # 각 움직임에서 얼마나 전력이 소모될 지 계산 : 전 단계 문 닫힌 상태 ~ 다음단계 문 닫힌 상태
@@ -404,9 +403,9 @@ def call_to_command(e1, e2):
                                     - whole_cases1[case_num1][trip + 1][0]) * Building.floor_height
                         # 같은 층에서의 input 은 바로 처리되기에, 한 번의 loop time 동안 소모되는 소비전력만 계산하면 됨
                         if direction:
-                            cost_power += k * (moved - Building.floor_height) \
-                                  + Building.floor_height * Elevator.operating_power / 2 \
-                                  + Elevator.door_operating_time * loop_time * Elevator.operating_power
+                            cost_power += moved * Elevator.operating_power \
+                                          + (k - Elevator.operating_power) * (moved - Building.floor_height / 2) \
+                                          + Elevator.door_operating_time * loop_time * Elevator.operating_power
                         else:
                             cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
                 # Elevator 2 power consumption
@@ -424,8 +423,8 @@ def call_to_command(e1, e2):
                     moved = abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
                     # 같은 층에서의 input 은 바로 처리되기에, 문이 닫히는 동안의 소비전력만 계산하면 됨
                     if direction:
-                        cost_power += k * (moved - Building.floor_height) \
-                                      + Building.floor_height * Elevator.operating_power / 2 \
+                        cost_power += moved * Elevator.operating_power \
+                                      + (k - Elevator.operating_power) * (moved - Building.floor_height / 2) \
                                       + Elevator.door_operating_time * loop_time * Elevator.operating_power
                     else:
                         cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
@@ -444,8 +443,8 @@ def call_to_command(e1, e2):
                                     - whole_cases2[case_num2][trip + 1][0]) * Building.floor_height
                         # 같은 층에서의 input 은 바로 처리되기에, 한 번의 loop time 동안 소모되는 소비전력만 계산하면 됨
                         if direction:
-                            cost_power += k * (moved - Building.floor_height) \
-                                          + Building.floor_height * Elevator.operating_power / 2 \
+                            cost_power += moved * Elevator.operating_power \
+                                          + (k - Elevator.operating_power) * (moved - Building.floor_height / 2) \
                                           + Elevator.door_operating_time * loop_time * Elevator.operating_power
                         else:
                             cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
