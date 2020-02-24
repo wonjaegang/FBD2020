@@ -346,7 +346,7 @@ def call_to_command(e1, e2):
                 # Bug : 층에 도착하여 문이 열려있는 상태에서, 동일한 층의 car call 이 들어오면
                 #       현재의 opening sequence 를 무시해야하지만, 무시하지 않음
                 # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
-                if len(whole_cases1[case_num1]) != 0:
+                if len(whole_cases1[case_num1]):
                     # Waiting time from current location & opening sequence to first destination
                     cost_time += (abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
                                   + e1.opening_sequence * loop_time) * len(whole_cases1[case_num1])
@@ -356,7 +356,7 @@ def call_to_command(e1, e2):
                                       * Building.floor_height + Elevator.door_operating_time * loop_time) \
                                        * (len(whole_cases1[case_num1]) - 1 - i)
                 # e2 : Just same with e1
-                if len(whole_cases2[case_num2]) != 0:
+                if len(whole_cases2[case_num2]):
                     cost_time += (abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
                                   + e2.opening_sequence * loop_time) * len(whole_cases2[case_num2])
                     for i in range(len(whole_cases2[case_num2]) - 1):
@@ -367,86 +367,88 @@ def call_to_command(e1, e2):
                 # Calculate estimated power consumption of e1 & e2 in specific case
                 # 함수를 사용해 반복되는 코드를 간소화시키는 것이 꼭 필요, 일단은 구동만 되도록 해놓음
                 #
-                # ##############3쉬는 엘리베이터의 가동전력 계산코드 필요
-                # ##############엘레베이터에 할당된 움직임이 없을 때 else문으로 갈 곳이 필요
-                # Elevator 1 power consumption
-                # 현재 위치에서 첫 목적지까지 움직일 때의 소비전력 계산
-                direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(
-                    e1.location, (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
-                weight = 0
-                # 첫 움직임에서 승강기 무게 계산
-                for i in range(len(whole_cases1[case_num1])):
-                    if whole_cases1[case_num1][len(whole_cases1[case_num1]) - i - 1][1][:2] == "lc":
-                        weight += 70
-                # 아래의 식은 update_evaluation_factor 함수 참고
-                k = decimal.Decimal(7.75) * (1 - direction) + (decimal.Decimal(2 / 75) * weight - 8) * direction
-                moved = abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
-                # 같은 층에서의 input 은 바로 처리되기에, 문이 닫히는 동안의 소비전력만 계산하면 됨
-                if direction:
-                    cost_power += k * (moved - Building.floor_height) \
-                                  + Building.floor_height * Elevator.operating_power / 2 \
-                                  + Elevator.door_operating_time * loop_time * Elevator.operating_power
-                else:
-                    cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
-                # 각 움직임에서 얼마나 전력이 소모될 지 계산 : 전 단계 문 닫힌 상태 ~ 다음단계 문 닫힌 상태
-                for trip in range(len(whole_cases1[case_num1]) - 1):
+                # ##############쉬는 엘리베이터의 가동전력 계산코드 필요
+                # ##############엘레베이터에 할당된 움직임이 없을 때 else문으로 갈 곳이 필요y''=
+                # ;Elevator 1 power consumption
+                if len(whole_cases1[case_num1]):
+                    # 현재 위치에서 첫 목적지까지 움직일 때의 소비전력 계산
                     direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(
-                        whole_cases1[case_num1][trip][0], whole_cases1[case_num1][trip + 1][0])
+                        e1.location, (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
                     weight = 0
-                    # 각 움직임에서 승강기 무게 계산
-                    for i in range(len(whole_cases1[case_num1]) - trip - 1):
+                    # 첫 움직임에서 승강기 무게 계산
+                    for i in range(len(whole_cases1[case_num1])):
                         if whole_cases1[case_num1][len(whole_cases1[case_num1]) - i - 1][1][:2] == "lc":
                             weight += 70
                     # 아래의 식은 update_evaluation_factor 함수 참고
                     k = decimal.Decimal(7.75) * (1 - direction) + (decimal.Decimal(2 / 75) * weight - 8) * direction
-                    moved = abs(whole_cases1[case_num1][trip][0]
-                                - whole_cases1[case_num1][trip + 1][0]) * Building.floor_height
-                    # 같은 층에서의 input 은 바로 처리되기에, 한 번의 loop time 동안 소모되는 소비전력만 계산하면 됨
-                    if direction:
-                        cost_power += k * (moved - Building.floor_height) \
-                              + Building.floor_height * Elevator.operating_power / 2 \
-                              + Elevator.door_operating_time * loop_time * Elevator.operating_power
-                    else:
-                        cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
-                # Elevator 2 power consumption
-                # 현재 위치에서 첫 목적지까지 움직일 때의 소비전력 계산
-                direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(
-                    e2.location, (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
-                weight = 0
-                # 첫 움직임에서 승강시 무게 계산
-                for i in range(len(whole_cases2[case_num2])):
-                    if whole_cases2[case_num2][len(whole_cases2[case_num2]) - i - 1][1][:2] == "lc":
-                        weight += 70
-                # 아래의 식은 update_evaluation_factor 함수 참고
-                k = decimal.Decimal(7.75) * (1 - direction) + (decimal.Decimal(2 / 75) * weight - 8) * direction
-                moved = abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
-                # 같은 층에서의 input 은 바로 처리되기에, 문이 닫히는 동안의 소비전력만 계산하면 됨
-                if direction:
-                    cost_power += k * (moved - Building.floor_height) \
-                                  + Building.floor_height * Elevator.operating_power / 2 \
-                                  + Elevator.door_operating_time * loop_time * Elevator.operating_power
-                else:
-                    cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
-                # 각 움직임에서 얼마나 전력이 소모될 지 계산 : 전 단계 문 닫힌 상태 ~ 다음단계 문 닫힌 상태
-                for trip in range(len(whole_cases2[case_num2]) - 1):
-                    direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(
-                        whole_cases2[case_num2][trip][0], whole_cases2[case_num2][trip + 1][0])
-                    weight = 0
-                    # 각 움직임에서 승강기 무게 계산
-                    for i in range(len(whole_cases2[case_num2]) - trip - 1):
-                        if whole_cases2[case_num2][len(whole_cases2[case_num2]) - i - 1][1][:2] == "lc":
-                            weight += 70
-                    # 아래의 식은 update_evaluation_factor 함수 참고
-                    k = decimal.Decimal(7.75) * (1 - direction) + (decimal.Decimal(2 / 75) * weight - 8) * direction
-                    moved = abs(whole_cases2[case_num2][trip][0]
-                                - whole_cases2[case_num2][trip + 1][0]) * Building.floor_height
-                    # 같은 층에서의 input 은 바로 처리되기에, 한 번의 loop time 동안 소모되는 소비전력만 계산하면 됨
+                    moved = abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
+                    # 같은 층에서의 input 은 바로 처리되기에, 문이 닫히는 동안의 소비전력만 계산하면 됨
                     if direction:
                         cost_power += k * (moved - Building.floor_height) \
                                       + Building.floor_height * Elevator.operating_power / 2 \
                                       + Elevator.door_operating_time * loop_time * Elevator.operating_power
                     else:
                         cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
+                    # 각 움직임에서 얼마나 전력이 소모될 지 계산 : 전 단계 문 닫힌 상태 ~ 다음단계 문 닫힌 상태
+                    for trip in range(len(whole_cases1[case_num1]) - 1):
+                        direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(
+                            whole_cases1[case_num1][trip][0], whole_cases1[case_num1][trip + 1][0])
+                        weight = 0
+                        # 각 움직임에서 승강기 무게 계산
+                        for i in range(len(whole_cases1[case_num1]) - trip - 1):
+                            if whole_cases1[case_num1][len(whole_cases1[case_num1]) - i - 1][1][:2] == "lc":
+                                weight += 70
+                        # 아래의 식은 update_evaluation_factor 함수 참고
+                        k = decimal.Decimal(7.75) * (1 - direction) + (decimal.Decimal(2 / 75) * weight - 8) * direction
+                        moved = abs(whole_cases1[case_num1][trip][0]
+                                    - whole_cases1[case_num1][trip + 1][0]) * Building.floor_height
+                        # 같은 층에서의 input 은 바로 처리되기에, 한 번의 loop time 동안 소모되는 소비전력만 계산하면 됨
+                        if direction:
+                            cost_power += k * (moved - Building.floor_height) \
+                                  + Building.floor_height * Elevator.operating_power / 2 \
+                                  + Elevator.door_operating_time * loop_time * Elevator.operating_power
+                        else:
+                            cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
+                # Elevator 2 power consumption
+                if len(whole_cases2[case_num2]):
+                    # 현재 위치에서 첫 목적지까지 움직일 때의 소비전력 계산
+                    direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(
+                        e2.location, (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
+                    weight = 0
+                    # 첫 움직임에서 승강시 무게 계산
+                    for i in range(len(whole_cases2[case_num2])):
+                        if whole_cases2[case_num2][len(whole_cases2[case_num2]) - i - 1][1][:2] == "lc":
+                            weight += 70
+                    # 아래의 식은 update_evaluation_factor 함수 참고
+                    k = decimal.Decimal(7.75) * (1 - direction) + (decimal.Decimal(2 / 75) * weight - 8) * direction
+                    moved = abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
+                    # 같은 층에서의 input 은 바로 처리되기에, 문이 닫히는 동안의 소비전력만 계산하면 됨
+                    if direction:
+                        cost_power += k * (moved - Building.floor_height) \
+                                      + Building.floor_height * Elevator.operating_power / 2 \
+                                      + Elevator.door_operating_time * loop_time * Elevator.operating_power
+                    else:
+                        cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
+                    # 각 움직임에서 얼마나 전력이 소모될 지 계산 : 전 단계 문 닫힌 상태 ~ 다음단계 문 닫힌 상태
+                    for trip in range(len(whole_cases2[case_num2]) - 1):
+                        direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(
+                            whole_cases2[case_num2][trip][0], whole_cases2[case_num2][trip + 1][0])
+                        weight = 0
+                        # 각 움직임에서 승강기 무게 계산
+                        for i in range(len(whole_cases2[case_num2]) - trip - 1):
+                            if whole_cases2[case_num2][len(whole_cases2[case_num2]) - i - 1][1][:2] == "lc":
+                                weight += 70
+                        # 아래의 식은 update_evaluation_factor 함수 참고
+                        k = decimal.Decimal(7.75) * (1 - direction) + (decimal.Decimal(2 / 75) * weight - 8) * direction
+                        moved = abs(whole_cases2[case_num2][trip][0]
+                                    - whole_cases2[case_num2][trip + 1][0]) * Building.floor_height
+                        # 같은 층에서의 input 은 바로 처리되기에, 한 번의 loop time 동안 소모되는 소비전력만 계산하면 됨
+                        if direction:
+                            cost_power += k * (moved - Building.floor_height) \
+                                          + Building.floor_height * Elevator.operating_power / 2 \
+                                          + Elevator.door_operating_time * loop_time * Elevator.operating_power
+                        else:
+                            cost_power += Elevator.door_operating_time * loop_time * Elevator.operating_power
 
                 # Main sentence of this algorithm. Calculate total cost with given weight-values
                 cost_total = cost_time * w_time + cost_power * w_power + cost_consistency * w_consistency
@@ -472,8 +474,8 @@ def call_to_command(e1, e2):
                         e2_destination_call = whole_cases2[case_num2][0]
                 print("case(%dth e1 case, %dth e2 case) : " % (case_num1, case_num2), end='')
                 print(whole_cases1[case_num1], whole_cases2[case_num2], "-> ", end='')
-                print("waiting time : %.2f, watts : %.2f, consistency : %0.2f, total cost : %.2f, adf%d"
-                      % (cost_time, cost_power, cost_consistency, cost_total, weight1))
+                print("waiting time : %.2f, watts : %.2f, consistency : %0.2f, total cost : %.2f"
+                      % (cost_time, cost_power, cost_consistency, cost_total))
         print("-" * 5)
 
     # [[elevator1 destination floor, elevator1 call type], [elevator2 destination floor, elevator2 call type]]
@@ -526,7 +528,8 @@ def update_evaluation_factor(e1, e2):
             + (decimal.Decimal((28 + 8) / 1350) * ps_weight - 8) * e1.v_direction
         if moved_distance[i][0]:
             if not moved_distance[i][1]:
-                power_per_loop[i] = (Building.floor_height / Elevator.speed) * power_constant * loop_time
+                power_per_loop[i] = (Building.floor_height / Elevator.speed / 2) \
+                                    * (power_constant - Elevator.operating_power) * loop_time
             elif moved_distance[i][1] > Building.floor_height:
                 power_per_loop[i] = power_constant * loop_time
             else:
@@ -543,6 +546,7 @@ elevator2 = Elevator(2, 1)
 command = [[elevator1.location / Building.floor_height + 1, "uncalled"],
            [elevator2.location / Building.floor_height + 1, "uncalled"]]
 while True:
+    print("loop count :", count)
     input_to_call()
     if run_main_algorithm:
         print("run allocation algorithm")

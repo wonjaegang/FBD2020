@@ -281,7 +281,8 @@ def update_evaluation_factor(e1, e2):
             + (decimal.Decimal((28 + 8) / 1350) * ps_weight - 8) * e1.v_direction
         if moved_distance[i][0]:
             if not moved_distance[i][1]:
-                power_per_loop[i] = (Building.floor_height / Elevator.speed) * power_constant * loop_time
+                power_per_loop[i] = (Building.floor_height / Elevator.speed / 2) \
+                                    * (power_constant - operating_power) * loop_time
             elif moved_distance[i][1] > Building.floor_height:
                 power_per_loop[i] = power_constant * loop_time
             else:
