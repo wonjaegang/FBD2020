@@ -157,9 +157,9 @@ def input_to_call():
     #data = ardu.readline()
     data = b''
     if count == 10:
+        data = b'P\r\n'
+    if count == 700:
         data = b'N\r\n'
-    if count == 30:
-        data = b'T\r\n'
 
 
 
@@ -510,8 +510,8 @@ while True:
     else:
         default_time=0
     if default_time == 500:
-        e1_destination_call = [1, "uncalled"]
-        e2_destination_call = [1, "uncalled"]
+        command[0] = [1, "uncalled"]
+        command[1] = [1, "uncalled"]
 
 
     elevator1.move_to_destination(command[0][0], command[0][1])
@@ -536,7 +536,7 @@ while True:
     print(elevator1)
     print(elevator2)
     print("=" * 30)
-
+    print(default_time)
     # GUI codes
     print_background()
 
@@ -595,3 +595,4 @@ while True:
 
     pygame.display.update()
     count = count + 1
+    time.sleep(0.01)

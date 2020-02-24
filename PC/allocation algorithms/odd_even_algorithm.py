@@ -155,10 +155,13 @@ moved_distance = [[0, 0], [0, 0]]
 # It modifies global variables
 def input_to_call():
     #data = ardu.readline()
-    data = b''
-    if count == 1000:
+    data= b''
+    if count == 100:
+        data = b'F\r\n'
+    if count == 300:
+        data = b'H\r\n'
+    if count == 600:
         data = b'J\r\n'
-
 
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
@@ -212,9 +215,9 @@ def call_to_command(e1, e2):
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
-                if floor != 2 or floor != 4:
+                if floor !=2 and floor != 4:
                     calls[0].append([floor, "cc" + str(call_type)])
-                elif floor != 3 or floor != 5:
+                elif floor != 3 and floor != 5:
                     calls[1].append([floor, "cc" + str(call_type)])
                 else:
                     if str(call_type) == '0':
@@ -229,12 +232,12 @@ def call_to_command(e1, e2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
                 if id_num == 0:
-                    if floor < 2 or floor > 3:
+                    if floor != 2 or floor != 4:
                         calls[id_num].append([floor, "lc"])
                     else:
                         lc[id_num][floor] = False
                 else:
-                    if floor < 4:
+                    if floor != 3 or floor != 5:
                         calls[id_num].append([floor, "lc"])
                     else:
                         lc[id_num][floor] = False
