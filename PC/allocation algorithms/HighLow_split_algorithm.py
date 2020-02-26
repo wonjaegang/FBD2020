@@ -506,9 +506,9 @@ while True:
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
 
-    if lc[0][6] and elevator1.destination[1] == "uncalled":
+    if lc[0][6] and elevator1.v_direction == 0:
         elevator1.door_open()
-    if lc[1][6] and elevator2.destination[1] == "uncalled":
+    if lc[1][6] and elevator2.v_direction == 0:
         elevator2.door_open()
         
     elevator1.move_to_destination(command[0][0], command[0][1])

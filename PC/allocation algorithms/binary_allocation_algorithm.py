@@ -447,7 +447,7 @@ def update_evaluation_factor(e1, e2):
         if moved_distance[i][0]:
             if not moved_distance[i][1]:
                 power_per_loop[i] = (Building.floor_height / Elevator.speed / 2) \
-                                    * (power_constant - operating_power) * loop_time
+                    * (power_constant - operating_power) * loop_time
             elif moved_distance[i][1] > Building.floor_height:
                 power_per_loop[i] = power_constant * loop_time
             else:
@@ -481,9 +481,9 @@ while True:
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
 
-    if lc[0][6] and elevator1.destination[1] == "uncalled":
+    if lc[0][6] and elevator1.v_direction == 0:
         elevator1.door_open()
-    if lc[1][6] and elevator2.destination[1] == "uncalled":
+    if lc[1][6] and elevator2.v_direction == 0:
         elevator2.door_open()
 
     elevator1.move_to_destination(command[0][0], command[0][1])
