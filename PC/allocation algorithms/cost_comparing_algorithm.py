@@ -197,7 +197,7 @@ def input_to_call():
     # if count == 421:
     #     data = b'L\r\n'
 
-    # Lunch time
+    # # Lunch time
     # if count == 100:
     #     data = b'J\r\n'
     # if count == 210:
@@ -299,9 +299,9 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Set weight values
-    w_time = decimal.Decimal(0.7)
-    w_power = decimal.Decimal(0.0)
-    w_consistency = decimal.Decimal(0.3)
+    w_time = decimal.Decimal(0.9)
+    w_power = decimal.Decimal(0.1)
+    w_consistency = decimal.Decimal(0.0)
     assert (round(w_time + w_power + w_consistency, 1) == 1), "Sum of weight values is not 1"
 
     # Put lc / cc values to car_calls and lc_calls list
@@ -369,6 +369,7 @@ def call_to_command(e1, e2):
                 # ##############쉬는 엘리베이터의 가동전력 계산코드 필요!!!!!!!!!!
                 # 아마도 가동전력은 따로 계산하는게 좋지 않을까 싶음. 현재코드는 쉬는 엘레베이터의 가동전력 고려 X
                 # ;Elevator 1 power consumption
+                # def calculate_power(h1, h2, e, journey):
                 if len(whole_cases1[case_num1]):
                     # 현재 위치에서 첫 목적지까지 움직일 때의 소비전력 계산
                     direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(
