@@ -198,56 +198,56 @@ def input_to_call():
     #     data = b'L\r\n'
 
     # # Lunch time
-    # if count == 100:
-    #     data = b'J\r\n'
-    # if count == 210:
-    #     data = b'R\r\n'
-    # if count == 101:
-    #     data = b'D\r\n'
-    # if count == 129:
-    #     data = b'L\r\n'
-    # if count == 130:
-    #     data = b'C\r\n'
-    # if count == 170:
-    #     data = b'O\r\n'
-    # if count == 180:
-    #     data = b'F\r\n'
-    # if count == 260:
-    #     data = b'L\r\n'
-    # if count == 181:
-    #     data = b'C\r\n'
-    # if count == 190:
-    #     data = b'P\r\n'
-    # if count == 240:
-    #     data = b'C\r\n'
-    # if count == 330:
-    #     data = b'U\r\n'
-    # if count == 300:
-    #     data = b'H\r\n'
-    # if count == 420:
-    #     data = b'K\r\n'
-
-    # Slack hours
     if count == 100:
         data = b'J\r\n'
-    if count == 202:
-        data = b'L\r\n'
-    if count == 400:
-        data = b'C\r\n'
-    if count == 402:
-        data = b'O\r\n'
-    if count == 700:
+    if count == 210:
+        data = b'R\r\n'
+    if count == 101:
         data = b'D\r\n'
-    if count == 730:
-        data = b'Q\r\n'
-    if count == 1000:
-        data = b'F\r\n'
-    if count == 1030:
+    if count == 129:
         data = b'L\r\n'
-    if count == 1300:
+    if count == 130:
         data = b'C\r\n'
-    if count == 1310:
+    if count == 170:
+        data = b'O\r\n'
+    if count == 180:
+        data = b'F\r\n'
+    if count == 260:
+        data = b'L\r\n'
+    if count == 181:
+        data = b'C\r\n'
+    if count == 190:
+        data = b'P\r\n'
+    if count == 240:
+        data = b'C\r\n'
+    if count == 330:
+        data = b'U\r\n'
+    if count == 300:
+        data = b'H\r\n'
+    if count == 420:
         data = b'K\r\n'
+
+    # Slack hours
+    # if count == 100:
+    #     data = b'J\r\n'
+    # if count == 202:
+    #     data = b'L\r\n'
+    # if count == 400:
+    #     data = b'C\r\n'
+    # if count == 402:
+    #     data = b'O\r\n'
+    # if count == 700:
+    #     data = b'D\r\n'
+    # if count == 730:
+    #     data = b'Q\r\n'
+    # if count == 1000:
+    #     data = b'F\r\n'
+    # if count == 1030:
+    #     data = b'L\r\n'
+    # if count == 1300:
+    #     data = b'C\r\n'
+    # if count == 1310:
+    #     data = b'K\r\n'
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
@@ -299,9 +299,9 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Set weight values
-    w_time = decimal.Decimal(0.9)
-    w_power = decimal.Decimal(0.1)
-    w_consistency = decimal.Decimal(0.0)
+    w_time = decimal.Decimal(0.69)
+    w_power = decimal.Decimal(0.01)
+    w_consistency = decimal.Decimal(0.3)
     assert (round(w_time + w_power + w_consistency, 1) == 1), "Sum of weight values is not 1"
 
     # Put lc / cc values to car_calls and lc_calls list
@@ -408,8 +408,26 @@ def call_to_command(e1, e2):
                     for trip in range(len(whole_cases2[case_num2]) - 1):
                         cost_power += calculate_p((whole_cases2[case_num2][trip][0] - 1) * Building.floor_height,
                                                   (whole_cases2[case_num2][trip + 1][0] - 1) * Building.floor_height,
-                                                  whole_cases2[case_num1],
+                                                  whole_cases2[case_num2],
                                                   trip + 1)
+
+                # Calculate Consistency of elevator
+                # Elevator 1
+                if len(whole_cases1[case_num1]):
+                    location1 = e1.location
+                    location2 = (whole_cases1[case_num1][0][0] - 1) * Building.floor_height
+                    direction_next = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(location1, location2)
+                    direction_variation = abs(e1.v_direction - direction_next)
+                    if direction_variation == 2:
+                        cost_consistency += 1
+                # Elevator 2
+                if len(whole_cases2[case_num2]):
+                    location1 = e1.location
+                    location2 = (whole_cases2[case_num2][0][0] - 1) * Building.floor_height
+                    direction_next = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(location1, location2)
+                    direction_variation = abs(e2.v_direction - direction_next)
+                    if direction_variation == 2:
+                        cost_consistency += 1
 
                 # Main sentence of this algorithm. Calculate total cost with given weight-values
                 cost_total = cost_time * w_time + cost_power * w_power + cost_consistency * w_consistency
