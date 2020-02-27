@@ -25,7 +25,7 @@ pygame.init()
 pygame.display.set_caption("FBD:: Elevator Simulation")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-# save the fonts and tests for GUI screen
+# save the fonts and texts for GUI screen
 font = pygame.font.Font('freesansbold.ttf', 30)
 text_B1 = font.render("B1", True, black)
 text_1 = font.render("1", True, black)
@@ -35,7 +35,8 @@ text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
 text_power = font.render("power:                     kWh", True, black)
 text_time = font.render("waiting time:                 sec", True, black)
-text_loop_count = font.render("loop count:                    sec", True, black)
+text_loop_count = font.render(
+    "loop count:                    sec", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
 
@@ -64,6 +65,8 @@ def print_background():
 
 # Class indicates specification of the building. Use decimal module to avoid floating point error
 # 0th floor is a basement floor
+
+
 class Building:
     floor_height = decimal.Decimal('2.5')
     lowest_f = 0
@@ -139,6 +142,7 @@ class Elevator:
 # Global variables
 # cc : Car Call      [floor(-1) <- [down, up], floor(1) <- [down, up], ... floor(5) <- [down, up]]
 # lc : Landing Call  [ Ele(1) <- [0, 1, 2, 3, 4, 5, open], Ele(2) <- [0, 1, 2, 3, 4, 5, open]]
+# cc_2: [E1 B1 cc1, E2 B1 cc1, E1 1F cc1, E2 1F cc1]
 cc = [[False] * 2 for k in range(Building.whole_floor)]
 lc = [[False] * (Building.whole_floor + 1) for i in range(2)]
 cc_2 = [False, False, False, False]
@@ -148,24 +152,26 @@ run_main_algorithm = False
 watts = 0
 wtime = 0
 count = 0
+# moved distance with constant direction. [[e1 direction(1, 0, -1), e1 distance(m)], [e2~, e2~]]
 moved_distance = [[0, 0], [0, 0]]
 
 
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
 def input_to_call():
-
     data = ardu.readline()
+
     if data == b'\x00\r\n':
         data = b''
 
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
         int.from_bytes(b'A\r\n', "little")
+
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
         print("There is no button input")
-    # If there is an input data, assign it to Landing Call or Car Call
+    # If there is an input data, assign it to Landing Call or Car Call or Open Button
     # If input data is NOT proper, raise assertion exception
     else:
         assert (0 <= int_data < 40), \
@@ -185,10 +191,13 @@ def input_to_call():
             open_id = int_data - (cc_button_num + Building.whole_floor * 2)
             lc[open_id][Building.whole_floor] = bool(
                 1 - lc[open_id][Building.whole_floor])
+        # cc1 from 1F and B1
         else:
-            cc_2[int_data-32]=True
+            cc_2[int_data-32] = True
+        # synchronize cc_2 and cc
         cc[0][1] = cc_2[0] or cc_2[1]
         cc[1][1] = cc_2[2] or cc_2[3]
+
         global run_main_algorithm
         run_main_algorithm = True
         print("Button Board says (", data, ") which means %dth button" % int_data)
@@ -205,9 +214,13 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
 
+    # lists to save cc and lc for each elevator
     calls = [[], []]
+
+    # e2's previous destination to avoid doing the same call
     e2_prev_dest = [e2.destination_floor, e2.destination[1]]
 
+    # save cc and lc into lists for each elevator
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
@@ -222,8 +235,7 @@ def call_to_command(e1, e2):
                     else:
                         for i in range(4):
                             if cc_2[i]:
-                                calls[i%2].append([floor, "cc1"])
-
+                                calls[i % 2].append([floor, "cc1"])
     for id_num in range(2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
@@ -238,6 +250,7 @@ def call_to_command(e1, e2):
                     else:
                         lc[id_num][floor] = False
 
+    # if there is only one common call, allocate a closer elevator
     if e1.destination[1] == e2.destination[1] == "uncalled":
         if len(calls[0]) == len(calls[1]) == 1:
             if calls[0][0][1][:2] == "cc":
@@ -255,42 +268,59 @@ def call_to_command(e1, e2):
                         e1_destination_call = [
                             e1.destination_floor, "uncalled"]
                     destination_call = [e1_destination_call,
-                                        e2_destination_call]  # example
+                                        e2_destination_call]
                     print(destination_call)
                     return destination_call
 
+    # to avoid doing the same call
     if e2.destination_floor < 2:
         if e2.destination[1] == "cc0":
             if calls[0].count(e2_prev_dest):
                 calls[0].remove(e2_prev_dest)
 
+    # if there is a no call
     if len(calls[0]) == 0:
         e1_destination_call = [e1.destination_floor, "uncalled"]
     else:
+        # if the doors are being opened
         if e1.opening_sequence > 0:
             e1_destination_call = [e1.destination_floor, "uncalled"]
         else:
+            # if the elevator stops now
             if e1.v_direction == 0:
+                # if it is the first call, there is no previous direction
                 if e1.prev_destination == 0:
                     e1_destination_call = calls[0][0]
                     check_d = 0
                 else:
+                    # save the current location as floor
                     cur_floor = e1.location / decimal.Decimal(2.5)
+                    # if it was going up
                     if e1.prev_destination == 1:
                         check_d = -1
+                        # check there is a call from upper
                         for i in range(len(calls[0])):
                             if(calls[0][i][0] > cur_floor):
                                 check_d = 1
+                    # if it was going down
                     elif e1.prev_destination == -1:
                         check_d = 1
+                        # check there is a call from lower
                         for i in range(len(calls[0])):
                             if(calls[0][i][0] < cur_floor):
                                 check_d = -1
+            # if the elevator is going up now
             elif e1.v_direction == 1:
                 check_d = 1
+            # if the elevator is going down now
             else:
                 check_d = -1
+            # the variable 'check_d' indicates the elevator's next direction
+            # check_d == 1 -> the elevator should go up
             if check_d == 1:
+                # to decide the call for the elevator to do first
+                # 1st: the closest cc1 or lc
+                # 2nd: the farthest cc0
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
                 check = 1
                 for index in range(5, cur_floor, -1):
@@ -304,7 +334,11 @@ def call_to_command(e1, e2):
                     for index in range(cur_floor+1, 6):
                         if(calls[0].count([index, "cc0"])):
                             e1_destination_call = [index, "cc0"]
+            # check_d == -1 -> the elevator should go down
             elif check_d == -1:
+                # to decide the call for the elevator to do first
+                # 1st: the closest cc0 or lc
+                # 2nd: the farthest cc1
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1
                 check = 1
                 for index in range(cur_floor+1):
@@ -319,38 +353,55 @@ def call_to_command(e1, e2):
                         if(calls[0].count([index, "cc1"])):
                             e1_destination_call = [index, "cc1"]
 
+    # to avoid doing the same call
     if e1_destination_call[0] < 2:
         if e1_destination_call[1] == "cc0":
             if calls[1].count(e1_destination_call):
                 calls[1].remove(e1_destination_call)
 
+    # if there is a no call
     if len(calls[1]) == 0:
         e2_destination_call = [e2.destination_floor, "uncalled"]
     else:
+        # if the doors are being opened
         if e2.opening_sequence > 0:
             e2_destination_call = [e2.destination_floor, "uncalled"]
         else:
+            # if the elevator stops now
             if e2.v_direction == 0:
+                # if it is a first call, there is no previous direction
                 if e2.prev_destination == 0:
                     e2_destination_call = calls[1][0]
                     check_d = 0
                 else:
+                    # save the current location as floors
                     cur_floor = e2.location / decimal.Decimal(2.5)
+                    # if it was going up
                     if e2.prev_destination == 1:
                         check_d = -1
+                        # check there is a call from upper
                         for i in range(len(calls[1])):
                             if(calls[1][i][0] > cur_floor):
                                 check_d = 1
+                    # if it was going down
                     elif e2.prev_destination == -1:
                         check_d = 1
+                        # check there is a call from lower
                         for i in range(len(calls[1])):
                             if(calls[1][i][0] < cur_floor):
                                 check_d = -1
+            # if the elevator is going up now
             elif e2.v_direction == 1:
                 check_d = 1
+            # if the elevator is going down now
             else:
                 check_d = -1
+            # the variable 'check_d' indicates the elevator's next direction
+            # check_d == 1 -> the elevator should go up
             if check_d == 1:
+                # to decide the call for the elevator to do first
+                # 1st: the closest cc1 or lc
+                # 2nd: the farthest cc0
                 cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))
                 check = 1
                 for index in range(5, cur_floor, -1):
@@ -364,7 +415,11 @@ def call_to_command(e1, e2):
                     for index in range(cur_floor+1, 6):
                         if(calls[1].count([index, "cc0"])):
                             e2_destination_call = [index, "cc0"]
+            # check_d == -1 -> the elevator should go down
             elif check_d == -1:
+                # to decide the call for the elevator to do first
+                # 1st: the closest cc0 or lc
+                # 2nd: the farthest cc1
                 cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1
                 check = 1
                 for index in range(cur_floor+1):
@@ -379,13 +434,15 @@ def call_to_command(e1, e2):
                         if(calls[1].count([index, "cc1"])):
                             e2_destination_call = [index, "cc1"]
 
-    destination_call = [e1_destination_call, e2_destination_call]  # example
+    destination_call = [e1_destination_call, e2_destination_call]
     print(destination_call)
     return destination_call
 
 
 # Turn off calls if elevator arrived
 def update_call(e):
+    # if 'cc and lc' or 'cc and cc' can be done at the same time
+    # to turn off the both calls
     if e.call_done:
         if e.prev_destination == 1:
             if e.destination[1] == "cc1":
@@ -418,7 +475,6 @@ def update_call(e):
                     lc[e.id_num-1][e.destination_floor] = False
                 check = False
                 for index in range(e.destination_floor, -1, -1):
-                    print(index)
                     if cc[index][0] or cc[index][1]:
                         check = True
                     if lc[e.id_num-1][index]:
@@ -472,7 +528,7 @@ def update_evaluation_factor(e1, e2):
         if moved_distance[i][0]:
             if not moved_distance[i][1]:
                 power_per_loop[i] = (Building.floor_height / Elevator.speed / 2) \
-                                    * (power_constant - operating_power) * loop_time
+                    * (power_constant - operating_power) * loop_time
             elif moved_distance[i][1] > Building.floor_height:
                 power_per_loop[i] = power_constant * loop_time
             else:
@@ -488,11 +544,13 @@ elevator1 = Elevator(1, 1)
 elevator2 = Elevator(2, 1)
 command = [[elevator1.location / Building.floor_height + 1, "uncalled"],
            [elevator2.location / Building.floor_height + 1, "uncalled"]]
+
 while True:
     input_to_call()
     if run_main_algorithm:
         command = call_to_command(elevator1, elevator2)
     run_main_algorithm = False
+
     # If elevator arrived, run main algorithm at next loop
     if elevator1.opening_sequence == 1:
         run_main_algorithm = True
@@ -500,38 +558,49 @@ while True:
         run_main_algorithm = True
 
     # Codes that actually operate the elevators
+
     # Close the door if it is opened.
     if elevator1.opening_sequence > 0:
         elevator1.door_close()
     if elevator2.opening_sequence > 0:
         elevator2.door_close()
 
+    # to open the door
     if lc[0][6] and elevator1.v_direction == 0:
         elevator1.door_open()
     if lc[1][6] and elevator2.v_direction == 0:
         elevator2.door_open()
-        
+
+    # move the elevators to destination from call_to_command
     elevator1.move_to_destination(command[0][0], command[0][1])
     elevator2.move_to_destination(command[1][0], command[1][1])
+
+    # update calls about e1
     update_call(elevator1)
 
+    # turn off the variable in cc_2 by the variable in cc
     if cc[0][1] == False:
         cc_2[0] = False
     if cc[1][1] == False:
         cc_2[2] = False
- 
+
+    # updates the variable in cc by the variables in cc_2 before update calls about e2
     cc[0][1] = cc_2[0] or cc_2[1]
     cc[1][1] = cc_2[2] or cc_2[3]
- 
+
+    # update calls about e2
     update_call(elevator2)
+
+    # turn off the variable in cc_2 by the variable in cc
     if cc[0][1] == False:
         cc_2[1] = False
     if cc[1][1] == False:
         cc_2[3] = False
- 
+
+    # updates the variable in cc by the variables in cc_2
     cc[0][1] = cc_2[0] or cc_2[1]
     cc[1][1] = cc_2[2] or cc_2[3]
-    
+
     # Update evaluation factors : waiting time, power consumption
     if elevator1.v_direction == moved_distance[0][0]:
         moved_distance[0][1] += Elevator.speed
@@ -543,6 +612,7 @@ while True:
     else:
         moved_distance[1][0] = elevator2.v_direction
         moved_distance[1][1] = Elevator.speed
+
     wtime = wtime + update_evaluation_factor(elevator1, elevator2)[0]
     watts = watts + update_evaluation_factor(elevator1, elevator2)[1]
 
@@ -552,6 +622,7 @@ while True:
 
     # GUI codes
     print_background()
+
     # Display variables(time & watt)
     watts_str = str(round(watts / 3600, 4))
     text_watts = font.render(watts_str, True, black)
@@ -562,8 +633,8 @@ while True:
     screen.blit(text_watts, (950, SIZE - 30))
     screen.blit(text_wtime, (1050, 2 * SIZE - 30))
     screen.blit(text_count, (1050, 3 * SIZE - 30))
-    # Display two elevators
 
+    # Display two elevators
     pygame.draw.rect(screen, grey, [
                      30 - elevator1.opening_sequence, int(400 - elevator1.location * 40), 25, SIZE])
     pygame.draw.rect(screen, grey, [
