@@ -25,7 +25,7 @@ pygame.init()
 pygame.display.set_caption("FBD:: Elevator Simulation")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-# save the fonts and tests for GUI screen
+# save the fonts and texts for GUI screen
 font = pygame.font.Font('freesansbold.ttf', 30)
 text_B1 = font.render("B1", True, black)
 text_1 = font.render("1", True, black)
