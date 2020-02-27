@@ -4,38 +4,45 @@
 
 //enable i2c communication with other Arduino
 #include <Wire.h>
+//I2C address
 #define Slave 0x10
 
+//save buttons' states
 int state2 = 1, state3 = 1, state4 = 1, state5 = 1, state6 = 1, state7 = 1, state8 = 1, state9 = 1, state10 = 1, state11 = 1, state12 = 1, state13 = 1;
 
 void setup()
 {
-    pinMode(2, INPUT); //button input
-    pinMode(3, INPUT); //button input
-    pinMode(4, INPUT); //button input
-    pinMode(5, INPUT); //button input
-    pinMode(6, INPUT); //button input
-    pinMode(7, INPUT); //button input
-    pinMode(8, INPUT); //button input
-    pinMode(9, INPUT); //button input
-    pinMode(10, INPUT); //button input
-    pinMode(11, INPUT); //button input
-    pinMode(12, INPUT); //button input
-    pinMode(13, INPUT); //button input
-    Wire.begin(); //begin I2C communication as I2C master
+    //set pins as buttons
+    pinMode(2, INPUT);
+    pinMode(3, INPUT);
+    pinMode(4, INPUT);
+    pinMode(5, INPUT);
+    pinMode(6, INPUT);
+    pinMode(7, INPUT);
+    pinMode(8, INPUT);
+    pinMode(9, INPUT);
+    pinMode(10, INPUT);
+    pinMode(11, INPUT);
+    pinMode(12, INPUT); 
+    pinMode(13, INPUT);
+    //begin I2C communication as I2C master
+    Wire.begin();
 }
 
 void loop()
 {
-    int a; //get button status
+    //save button status
+    int a;
+    //data to send to the other Arduino and PC
     char data;
 
     a = digitalRead(2);
     if (a == 1 && state2 == 1) {
         data = 'K';
         state2 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data); 
         Wire.endTransmission();
     }
     if (a == 0)
@@ -45,8 +52,9 @@ void loop()
     if (a == 1 && state3 == 1) {
         data = 'L';
         state3 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data);
         Wire.endTransmission();
     }
     if (a == 0)
@@ -56,8 +64,9 @@ void loop()
     if (a == 1 && state4 == 1) {
         data = 'M';
         state4 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data); 
         Wire.endTransmission();
     }
     if (a == 0)
@@ -67,8 +76,9 @@ void loop()
     if (a == 1 && state5 == 1) {
         data = 'N';
         state5 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data); 
         Wire.endTransmission();
     }
     if (a == 0)
@@ -78,8 +88,9 @@ void loop()
     if (a == 1 && state6 == 1) {
         data = 'O';
         state6 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data); 
         Wire.endTransmission();
     }
     if (a == 0)
@@ -89,8 +100,9 @@ void loop()
     if (a == 1 && state7 == 1) {
         data = 'P';
         state7 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data);
         Wire.endTransmission();
     }
     if (a == 0)
@@ -100,8 +112,9 @@ void loop()
     if (a == 1 && state8 == 1) {
         data = 'Q';
         state8 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data); 
         Wire.endTransmission();
     }
     if (a == 0)
@@ -111,8 +124,9 @@ void loop()
     if (a == 1 && state9 == 1) {
         data = 'R';
         state9 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data); 
         Wire.endTransmission();
     }
     if (a == 0)
@@ -122,8 +136,9 @@ void loop()
     if (a == 1 && state10 == 1) {
         data = 'S';
         state10 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data);
         Wire.endTransmission();
     }
     if (a == 0)
@@ -133,8 +148,9 @@ void loop()
     if (a == 1 && state11 == 1) {
         data = 'T';
         state11 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data); 
         Wire.endTransmission();
     }
     if (a == 0)
@@ -144,8 +160,9 @@ void loop()
     if (a == 1 && state12 == 1) {
         data = 'U';
         state12 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data);
         Wire.endTransmission();
     }
     if (a == 0)
@@ -155,8 +172,9 @@ void loop()
     if (a == 1 && state13 == 1) {
         data = 'V';
         state13 = 0;
+        //send the data to the other Arduino
         Wire.beginTransmission(Slave);
-        Wire.write(data); //send the data to other Arduino
+        Wire.write(data); 
         Wire.endTransmission();
     }
     if (a == 0)
