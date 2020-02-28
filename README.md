@@ -9,5 +9,3 @@ Firmwares to be uploded on Arduino Nano
 basic_algorithm.py
 ## allocation algorithms
 codes for elevator controlling
-## each test file
-codes testing files for each person
