@@ -164,6 +164,108 @@ def input_to_call():
     if data == b'\x00\r\n':
         data = b''
 
+    # 출근 시간
+    # if count == 100:
+    #     data = b'c\r\n'   #1F cc1, e1
+    # if count == 110:
+    #     data = b'O\r\n'   # 4F lc
+    # if count == 111:
+    #     data = b'P\r\n'   # 5F lc
+    # if count == 150:
+    #     data = b'd\r\n'   # 1F cc1, e2
+    # if count == 160:
+    #     data = b'T\r\n'   # 3F lc
+    # if count == 250:
+    #     data = b'J\r\n'   # 5F cc0
+    # if count == 260:
+    #     data = b'd\r\n'   # 1F cc1, e2
+    # if count == 270:
+    #     data = b'L\r\n'   # 1F lc, e1
+    # if count == 300:
+    #     data = b'b\r\n'   # B1 cc1, e2
+    # if count == 340:
+    #     data = b'S\r\n'   # 2F lc
+    # if count == 390:
+    #     data = b'T\r\n'   # 3F lc
+
+    # 퇴근 시간
+    # if count == 100:
+    #     data = b'J\r\n' # 5F cc0
+    # if count == 201:
+    #     data = b'L\r\n' # 1F lc, e1
+    # if count == 210:
+    #     data = b'K\r\n' # B1 lc, e1
+    # if count == 120:
+    #     data = b'H\r\n' # 4F cc0
+    # if count == 250:
+    #     data = b'L\r\n' # 1F lc, e1
+    # if count == 200:
+    #     data = b'c\r\n' # 1F cc1, e1
+    # if count == 440:
+    #     data = b'P\r\n' # 5F lc
+    # if count == 340:
+    #     data = b'I\r\n' # 4F cc1
+    # if count == 530:
+    #      data = b'P\r\n' # 5F lc
+    # if count == 300:
+    #     data = b'J\r\n' # 5F cc0
+    # if count == 580:
+    #     data = b'L\r\n' # 1F lc, e1
+    # if count == 581:
+    #     data = b'K\r\n' # B1 lc, e1
+
+    # 점심 시간
+    # if count == 100:
+    #     data = b'J\r\n' # 5F cc0
+    # if count == 200:
+    #     data = b'L\r\n' # 1F lc ,e1
+    # if count == 101:
+    #     data = b'D\r\n' # 2F cc0
+    # if count == 131:
+    #     data = b'R\r\n' # 1F lc, e2
+    # if count == 130:
+    #     data = b'c\r\n' # 1F cc1, e1
+    # if count == 340:
+    #     data = b'O\r\n' # 4F lc
+    # if count == 180:
+    #     data = b'F\r\n' # 3F cc0
+    # if count == 250:
+    #     data = b'R\r\n' # 1F lc. e2
+    # if count == 181:
+    #     data = b'c\r\n' # 1F cc1, e1
+    # if count == 335:
+    #     data = b'P\r\n' # 5F lc
+    # if count == 240:
+    #     data = b'c\r\n' # 1F cc1, e1
+    # if count == 336:
+    #     data = b'O\r\n' # 4F lc
+    # if count == 300:
+    #     data = b'H\r\n' # 4F cc0
+    # if count == 520:
+    #     data = b'K\r\n' # B1 lc, e1 
+
+    # 한산한 시간
+    # if count == 100:
+    #     data = b'J\r\n' # 5F cc0
+    # if count == 200:
+    #     data = b'L\r\n' # 1F lc, e1
+    # if count == 400:
+    #     data = b'c\r\n' # 1F cc1, e1
+    # if count == 401:
+    #     data = b'O\r\n' # 4F lc
+    # if count == 700:
+    #     data = b'D\r\n' # 2F cc0
+    # if count == 730:
+    #     data = b'Q\r\n' # B1, lc, e2
+    # if count == 1000:
+    #     data = b'F\r\n' # 3F cc0
+    # if count == 1080:
+    #     data = b'R\r\n' # 1F lc, e2
+    # if count == 1300:
+    #     data = b'B\r\n' # 1F cc0
+    # if count == 1301:       
+    #     data = b'Q\r\n' # B1 lc, e2
+
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
         int.from_bytes(b'A\r\n', "little")
@@ -293,10 +395,10 @@ def call_to_command(e1, e2):
                     e1_destination_call = calls[0][0]
                     check_d = 0
                 else:
-                    # save the current location as floor
-                    cur_floor = e1.location / decimal.Decimal(2.5)
                     # if it was going up
                     if e1.prev_destination == 1:
+                        # save the current location as floor
+                        cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
                         check_d = -1
                         # check there is a call from upper
                         for i in range(len(calls[0])):
@@ -304,6 +406,8 @@ def call_to_command(e1, e2):
                                 check_d = 1
                     # if it was going down
                     elif e1.prev_destination == -1:
+                        # save the current location as floor
+                        cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1                        
                         check_d = 1
                         # check there is a call from lower
                         for i in range(len(calls[0])):
@@ -374,10 +478,10 @@ def call_to_command(e1, e2):
                     e2_destination_call = calls[1][0]
                     check_d = 0
                 else:
-                    # save the current location as floors
-                    cur_floor = e2.location / decimal.Decimal(2.5)
                     # if it was going up
                     if e2.prev_destination == 1:
+                        # save the current location as floor
+                        cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))                    
                         check_d = -1
                         # check there is a call from upper
                         for i in range(len(calls[1])):
@@ -385,6 +489,8 @@ def call_to_command(e1, e2):
                                 check_d = 1
                     # if it was going down
                     elif e2.prev_destination == -1:
+                        # save the current location as floor
+                        cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1                        
                         check_d = 1
                         # check there is a call from lower
                         for i in range(len(calls[1])):
