@@ -162,6 +162,58 @@ def input_to_call():
     if data == b'\x00\r\n':
         data = b''
 
+    # 출근 시간
+    # if count == 100:
+    #     data = b'C\r\n'  # 1F cc1 
+    # if count == 150:
+    #     data = b'C\r\n'   # 1F cc1
+    # if count == 250:
+    #     data = b'J\r\n'   # 5F cc0
+    # if count == 260:
+    #     data = b'C\r\n'   # 1F cc1
+    # if count == 300:
+    #     data = b'A\r\n'   # B1 cc1
+
+    # # 퇴근 시간
+    # if count == 100:
+    #     data = b'J\r\n' # 5F cc0
+    # if count == 120:
+    #     data = b'H\r\n' # 4F cc0
+    # if count == 200:
+    #     data = b'C\r\n' # 1F cc1
+    # if count == 240:
+    #     data = b'G\r\n' # 3F cc1
+    # if count == 300:
+    #     data = b'J\r\n' # 5F cc0
+
+    # # 점심 시간
+    # if count == 100:
+    #     data = b'J\r\n' # 5F cc0
+    # if count == 101:
+    #     data = b'D\r\n' # 2F cc0
+    # if count == 130:
+    #     data = b'C\r\n' # 1F cc1
+    # if count == 180:
+    #     data = b'F\r\n' # 3F cc0
+    # if count == 181:
+    #     data = b'C\r\n' # 1F cc1
+    # if count == 240:
+    #     data = b'C\r\n' # 1F cc1
+    # if count == 300:
+    #     data = b'H\r\n' # 4F cc0
+
+    # # 한산한 시간
+    # if count == 100:
+    #     data = b'J\r\n' # 5F cc0
+    # if count == 400:
+    #     data = b'C\r\n' # 1F cc1, e1
+    # if count == 700:
+    #     data = b'D\r\n' # 2F cc0
+    # if count == 1000:
+    #     data = b'F\r\n' # 3F cc0
+    # if count == 1300:
+    #     data = b'B\r\n' # 1F cc0
+
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
         int.from_bytes(b'A\r\n', "little")
@@ -205,7 +257,6 @@ def call_to_command(e1, e2):
     # TO-DO LIST
     # # # # # # # # # # # # # # # # # # # # # # # #
     # MUST change call_type to "uncalled" after arrived
-
     # lists to save cc and lc for each elevator
     calls = [[], []]
 
@@ -224,7 +275,7 @@ def call_to_command(e1, e2):
                 calls[id_num].append([floor, "lc"])
 
     # if there is only one common call, allocate a closer elevator
-    if e1.destination[1] == e2.destination[1] == "uncalled":
+    if e1.opening_sequence == 0 and e2.opening_sequence == 0:
         if len(calls[0]) == len(calls[1]) == 1:
             if calls[0][0][1][:2] == "cc":
                 if calls[0] == calls[1]:
@@ -265,10 +316,10 @@ def call_to_command(e1, e2):
                     e1_destination_call = calls[0][0]
                     check_d = 0
                 else:
-                    # save the current location as floor
-                    cur_floor = e1.location / decimal.Decimal(2.5)
                     # if it was going up
                     if e1.prev_destination == 1:
+                        # save the current location as floor
+                        cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
                         check_d = -1
                         # check there is a call from upper
                         for i in range(len(calls[0])):
@@ -276,6 +327,8 @@ def call_to_command(e1, e2):
                                 check_d = 1
                     # if it was going down
                     elif e1.prev_destination == -1:
+                        # save the current location as floor
+                        cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1                        
                         check_d = 1
                         # check there is a call from lower
                         for i in range(len(calls[0])):
@@ -345,10 +398,10 @@ def call_to_command(e1, e2):
                     e2_destination_call = calls[1][0]
                     check_d = 0
                 else:
-                    # save the current location as floors
-                    cur_floor = e2.location / decimal.Decimal(2.5)
                     # if it was going up
                     if e2.prev_destination == 1:
+                        # save the current location as floor
+                        cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))                    
                         check_d = -1
                         # check there is a call from upper
                         for i in range(len(calls[1])):
@@ -356,6 +409,8 @@ def call_to_command(e1, e2):
                                 check_d = 1
                     # if it was going down
                     elif e2.prev_destination == -1:
+                        # save the current location as floor
+                        cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1                        
                         check_d = 1
                         # check there is a call from lower
                         for i in range(len(calls[1])):

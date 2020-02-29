@@ -353,7 +353,7 @@ def call_to_command(e1, e2):
                         lc[id_num][floor] = False
 
     # if there is only one common call, allocate a closer elevator
-    if e1.destination[1] == e2.destination[1] == "uncalled":
+    if e1.opening_sequence == 0 and e2.opening_sequence == 0:
         if len(calls[0]) == len(calls[1]) == 1:
             if calls[0][0][1][:2] == "cc":
                 if calls[0] == calls[1]:
