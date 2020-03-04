@@ -402,7 +402,7 @@ def call_to_command(e1, e2):
                         check_d = -1
                         # check there is a call from upper
                         for i in range(len(calls[0])):
-                            if(calls[0][i][0] > cur_floor):
+                            if calls[0][i][0] > cur_floor:
                                 check_d = 1
                     # if it was going down
                     elif e1.prev_destination == -1:
@@ -411,7 +411,7 @@ def call_to_command(e1, e2):
                         check_d = 1
                         # check there is a call from lower
                         for i in range(len(calls[0])):
-                            if(calls[0][i][0] < cur_floor):
+                            if calls[0][i][0] < cur_floor:
                                 check_d = -1
             # if the elevator is going up now
             elif e1.v_direction == 1:
@@ -428,15 +428,15 @@ def call_to_command(e1, e2):
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
                 check = 1
                 for index in range(5, cur_floor, -1):
-                    if(calls[0].count([index, "lc"])):
+                    if calls[0].count([index, "lc"]):
                         e1_destination_call = [index, "lc"]
                         check = 0
-                    if(calls[0].count([index, "cc1"])):
+                    if calls[0].count([index, "cc1"]):
                         e1_destination_call = [index, "cc1"]
                         check = 0
                 if check:
                     for index in range(cur_floor+1, 6):
-                        if(calls[0].count([index, "cc0"])):
+                        if calls[0].count([index, "cc0"]):
                             e1_destination_call = [index, "cc0"]
             # check_d == -1 -> the elevator should go down
             elif check_d == -1:
@@ -446,15 +446,15 @@ def call_to_command(e1, e2):
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1
                 check = 1
                 for index in range(cur_floor+1):
-                    if(calls[0].count([index, "lc"])):
+                    if calls[0].count([index, "lc"]):
                         e1_destination_call = [index, "lc"]
                         check = 0
-                    if(calls[0].count([index, "cc0"])):
+                    if calls[0].count([index, "cc0"]):
                         e1_destination_call = [index, "cc0"]
                         check = 0
                 if check:
                     for index in range(cur_floor, -1, -1):
-                        if(calls[0].count([index, "cc1"])):
+                        if calls[0].count([index, "cc1"]):
                             e1_destination_call = [index, "cc1"]
 
     # to avoid doing the same call
@@ -485,7 +485,7 @@ def call_to_command(e1, e2):
                         check_d = -1
                         # check there is a call from upper
                         for i in range(len(calls[1])):
-                            if(calls[1][i][0] > cur_floor):
+                            if calls[1][i][0] > cur_floor:
                                 check_d = 1
                     # if it was going down
                     elif e2.prev_destination == -1:
@@ -494,7 +494,7 @@ def call_to_command(e1, e2):
                         check_d = 1
                         # check there is a call from lower
                         for i in range(len(calls[1])):
-                            if(calls[1][i][0] < cur_floor):
+                            if calls[1][i][0] < cur_floor:
                                 check_d = -1
             # if the elevator is going up now
             elif e2.v_direction == 1:
@@ -511,15 +511,15 @@ def call_to_command(e1, e2):
                 cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))
                 check = 1
                 for index in range(5, cur_floor, -1):
-                    if(calls[1].count([index, "lc"])):
+                    if calls[1].count([index, "lc"]):
                         e2_destination_call = [index, "lc"]
                         check = 0
-                    if(calls[1].count([index, "cc1"])):
+                    if calls[1].count([index, "cc1"]):
                         e2_destination_call = [index, "cc1"]
                         check = 0
                 if check:
                     for index in range(cur_floor+1, 6):
-                        if(calls[1].count([index, "cc0"])):
+                        if calls[1].count([index, "cc0"]):
                             e2_destination_call = [index, "cc0"]
             # check_d == -1 -> the elevator should go down
             elif check_d == -1:
@@ -529,15 +529,15 @@ def call_to_command(e1, e2):
                 cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1
                 check = 1
                 for index in range(cur_floor+1):
-                    if(calls[1].count([index, "lc"])):
+                    if calls[1].count([index, "lc"]):
                         e2_destination_call = [index, "lc"]
                         check = 0
-                    if(calls[1].count([index, "cc0"])):
+                    if calls[1].count([index, "cc0"]):
                         e2_destination_call = [index, "cc0"]
                         check = 0
                 if check:
                     for index in range(cur_floor, -1, -1):
-                        if(calls[1].count([index, "cc1"])):
+                        if calls[1].count([index, "cc1"]):
                             e2_destination_call = [index, "cc1"]
 
     destination_call = [e1_destination_call, e2_destination_call]
@@ -595,14 +595,14 @@ def update_call(e):
                 if cc[e.destination_floor][int(e.destination[1][2])]:
                     cc[e.destination_floor][int(e.destination[1][2])] = False
                 else:
-                    raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                     e.destination)
+                    raise ValueError("Elevator%d arrived at %dth floor with vain call : "
+                                     % (e.id_num, e.destination[0]), e.destination)
             elif e.destination[1][:2] == "lc":
                 if lc[e.id_num - 1][e.destination_floor]:
                     lc[e.id_num - 1][e.destination_floor] = False
                 else:
-                    raise ValueError("Elevator%d arrived at %dth floor with vain call : " % (e.id_num, e.destination[0]),
-                                     e.destination)
+                    raise ValueError("Elevator%d arrived at %dth floor with vain call : "
+                                     % (e.id_num, e.destination[0]), e.destination)
     global run_main_algorithm
     run_main_algorithm = True
     e.call_done = False
@@ -685,9 +685,9 @@ while True:
     update_call(elevator1)
 
     # turn off the variable in cc_2 by the variable in cc
-    if cc[0][1] == False:
+    if not cc[0][1]:
         cc_2[0] = False
-    if cc[1][1] == False:
+    if not cc[1][1]:
         cc_2[2] = False
 
     # updates the variable in cc by the variables in cc_2 before update calls about e2
@@ -698,9 +698,9 @@ while True:
     update_call(elevator2)
 
     # turn off the variable in cc_2 by the variable in cc
-    if cc[0][1] == False:
+    if not cc[0][1]:
         cc_2[1] = False
-    if cc[1][1] == False:
+    if not cc[1][1]:
         cc_2[3] = False
 
     # updates the variable in cc by the variables in cc_2
