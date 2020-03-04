@@ -1,12 +1,12 @@
 import decimal
-#import serial
+import serial
 import sys
 import pygame
 import time
 import math
 
 # revise port's name for each PC after
-#ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)
+# ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)
 
 # define variables for GUI screen
 SCREEN_WIDTH = 1200
@@ -154,8 +154,8 @@ moved_distance = [[0, 0], [0, 0]]
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
 def input_to_call():
-    #data = ardu.readline()
-    data= b''
+    # data = ardu.readline()
+    data = b''
     if count == 100:
         data = b'F\r\n'
     if count == 300:
@@ -164,8 +164,7 @@ def input_to_call():
         data = b'J\r\n'
 
     # Convert to int starts from 0
-    int_data = int.from_bytes(data, "little") - \
-               int.from_bytes(b'A\r\n', "little")
+    int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
         print("There is no button input")
@@ -215,7 +214,7 @@ def call_to_command(e1, e2):
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
-                if floor !=2 and floor != 4:
+                if floor != 2 and floor != 4:
                     calls[0].append([floor, "cc" + str(call_type)])
                 elif floor != 3 and floor != 5:
                     calls[1].append([floor, "cc" + str(call_type)])
@@ -283,12 +282,12 @@ def call_to_command(e1, e2):
                     if e1.prev_destination == 1:
                         check_d = -1
                         for i in range(len(calls[0])):
-                            if (calls[0][i][0] > cur_floor):
+                            if calls[0][i][0] > cur_floor:
                                 check_d = 1
                     elif e1.prev_destination == -1:
                         check_d = 1
                         for i in range(len(calls[0])):
-                            if (calls[0][i][0] < cur_floor):
+                            if calls[0][i][0] < cur_floor:
                                 check_d = -1
             elif e1.v_direction == 1:
                 check_d = 1
@@ -298,29 +297,29 @@ def call_to_command(e1, e2):
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5))
                 check = 1
                 for index in range(5, cur_floor, -1):
-                    if (calls[0].count([index, "lc"])):
+                    if calls[0].count([index, "lc"]):
                         e1_destination_call = [index, "lc"]
                         check = 0
-                    if (calls[0].count([index, "cc1"])):
+                    if calls[0].count([index, "cc1"]):
                         e1_destination_call = [index, "cc1"]
                         check = 0
                 if check:
                     for index in range(cur_floor + 1, 6):
-                        if (calls[0].count([index, "cc0"])):
+                        if calls[0].count([index, "cc0"]):
                             e1_destination_call = [index, "cc0"]
             elif check_d == -1:
                 cur_floor = math.trunc(e1.location / decimal.Decimal(2.5)) + 1
                 check = 1
                 for index in range(cur_floor + 1):
-                    if (calls[0].count([index, "lc"])):
+                    if calls[0].count([index, "lc"]):
                         e1_destination_call = [index, "lc"]
                         check = 0
-                    if (calls[0].count([index, "cc0"])):
+                    if calls[0].count([index, "cc0"]):
                         e1_destination_call = [index, "cc0"]
                         check = 0
                 if check:
                     for index in range(cur_floor, -1, -1):
-                        if (calls[0].count([index, "cc1"])):
+                        if calls[0].count([index, "cc1"]):
                             e1_destination_call = [index, "cc1"]
 
     if e1_destination_call[0] < 2:
@@ -343,12 +342,12 @@ def call_to_command(e1, e2):
                     if e2.prev_destination == 1:
                         check_d = -1
                         for i in range(len(calls[1])):
-                            if (calls[1][i][0] > cur_floor):
+                            if calls[1][i][0] > cur_floor:
                                 check_d = 1
                     elif e2.prev_destination == -1:
                         check_d = 1
                         for i in range(len(calls[1])):
-                            if (calls[1][i][0] < cur_floor):
+                            if calls[1][i][0] < cur_floor:
                                 check_d = -1
             elif e2.v_direction == 1:
                 check_d = 1
@@ -358,29 +357,29 @@ def call_to_command(e1, e2):
                 cur_floor = math.trunc(e2.location / decimal.Decimal(2.5))
                 check = 1
                 for index in range(5, cur_floor, -1):
-                    if (calls[1].count([index, "lc"])):
+                    if calls[1].count([index, "lc"]):
                         e2_destination_call = [index, "lc"]
                         check = 0
-                    if (calls[1].count([index, "cc1"])):
+                    if calls[1].count([index, "cc1"]):
                         e2_destination_call = [index, "cc1"]
                         check = 0
                 if check:
                     for index in range(cur_floor + 1, 6):
-                        if (calls[1].count([index, "cc0"])):
+                        if calls[1].count([index, "cc0"]):
                             e2_destination_call = [index, "cc0"]
             elif check_d == -1:
                 cur_floor = math.trunc(e2.location / decimal.Decimal(2.5)) + 1
                 check = 1
                 for index in range(cur_floor + 1):
-                    if (calls[1].count([index, "lc"])):
+                    if calls[1].count([index, "lc"]):
                         e2_destination_call = [index, "lc"]
                         check = 0
-                    if (calls[1].count([index, "cc0"])):
+                    if calls[1].count([index, "cc0"]):
                         e2_destination_call = [index, "cc0"]
                         check = 0
                 if check:
                     for index in range(cur_floor, -1, -1):
-                        if (calls[1].count([index, "cc1"])):
+                        if calls[1].count([index, "cc1"]):
                             e2_destination_call = [index, "cc1"]
 
     destination_call = [e1_destination_call, e2_destination_call]  # example
@@ -520,18 +519,18 @@ while True:
     elevator2.move_to_destination(command[1][0], command[1][1])
     update_call(elevator1)
 
-    if cc[0][1] == False:
+    if not cc[0][1]:
         cc_2[0] = False
-    if cc[1][1] == False:
+    if not cc[1][1]:
         cc_2[2] = False
 
     cc[0][1] = cc_2[0] or cc_2[1]
     cc[1][1] = cc_2[2] or cc_2[3]
 
     update_call(elevator2)
-    if cc[0][1] == False:
+    if not cc[0][1]:
         cc_2[1] = False
-    if cc[1][1] == False:
+    if not cc[1][1]:
         cc_2[3] = False
 
     cc[0][1] = cc_2[0] or cc_2[1]
@@ -611,4 +610,5 @@ while True:
             sys.exit()
 
     pygame.display.update()
+    time.sleep(0.01)
     count = count + 1
