@@ -35,7 +35,7 @@ text_3 = font.render("3", True, black)
 text_4 = font.render("4", True, black)
 text_5 = font.render("5", True, black)
 text_power = font.render("power:                     kWh", True, black)
-text_time = font.render("waiting time:                 sec", True, black)
+text_time = font.render("waiting time:                  sec", True, black)
 text_loop_count = font.render("loop count:                     sec", True, black)
 text_button = font.render("E1  E2  down  up", True, black)
 text_name = font.render("FBD2020 Project", True, black)
@@ -151,7 +151,7 @@ moved_distance = [[0, 0], [0, 0]]
 def input_to_call():
     # data = ardu.readline()
     data = b''
-    # Get to Work
+    # # Get to Work
     # if count == 100:
     #     data = b'C\r\n'
     # if count == 101:
@@ -171,7 +171,7 @@ def input_to_call():
     # if count == 380:
     #     data = b'S\r\n'
 
-    # Get off Work
+    # # Get off Work
     # if count == 100:
     #     data = b'J\r\n'
     # if count == 230:
@@ -198,36 +198,36 @@ def input_to_call():
     #     data = b'L\r\n'
 
     # # Lunch time
-    if count == 100:
-        data = b'J\r\n'
-    if count == 210:
-        data = b'R\r\n'
-    if count == 101:
-        data = b'D\r\n'
-    if count == 129:
-        data = b'L\r\n'
-    if count == 130:
-        data = b'C\r\n'
-    if count == 170:
-        data = b'O\r\n'
-    if count == 180:
-        data = b'F\r\n'
-    if count == 260:
-        data = b'L\r\n'
-    if count == 181:
-        data = b'C\r\n'
-    if count == 190:
-        data = b'P\r\n'
-    if count == 240:
-        data = b'C\r\n'
-    if count == 330:
-        data = b'U\r\n'
-    if count == 300:
-        data = b'H\r\n'
-    if count == 420:
-        data = b'K\r\n'
+    # if count == 100:
+    #     data = b'J\r\n'
+    # if count == 210:
+    #     data = b'R\r\n'
+    # if count == 101:
+    #     data = b'D\r\n'
+    # if count == 129:
+    #     data = b'L\r\n'
+    # if count == 130:
+    #     data = b'C\r\n'
+    # if count == 170:
+    #     data = b'O\r\n'
+    # if count == 180:
+    #     data = b'F\r\n'
+    # if count == 260:
+    #     data = b'L\r\n'
+    # if count == 181:
+    #     data = b'C\r\n'
+    # if count == 190:
+    #     data = b'P\r\n'
+    # if count == 240:
+    #     data = b'C\r\n'
+    # if count == 330:
+    #     data = b'U\r\n'
+    # if count == 300:
+    #     data = b'H\r\n'
+    # if count == 420:
+    #     data = b'K\r\n'
 
-    # Slack hours
+    # # Slack hours
     # if count == 100:
     #     data = b'J\r\n'
     # if count == 202:
@@ -289,8 +289,7 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     #
     # Cost comparing algorithm :
-    #               Simulate every number of cases and calculate the cost of each case. Select the case that have
-    #               lowest cost.
+    #      Simulate every number of cases and calculate the cost of each case. Select the case that has lowest cost.
     #           cost_time :
     #           cost_power :
     #           cost_consistency :
@@ -299,10 +298,10 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Set weight values
-    w_time = decimal.Decimal(0.69)
-    w_power = decimal.Decimal(0.01)
-    w_consistency = decimal.Decimal(0.3)
-    assert (round(w_time + w_power + w_consistency, 1) == 1), "Sum of weight values is not 1"
+    w_time = decimal.Decimal(18)
+    w_power = decimal.Decimal(1)
+    w_consistency = decimal.Decimal(100)
+    # assert (round(w_time + w_power + w_consistency, 1) == 1), "Sum of weight values is not 1"
 
     # Put lc / cc values to car_calls and lc_calls list
     car_calls = []
@@ -366,7 +365,7 @@ def call_to_command(e1, e2):
 
                 # Calculate estimated power consumption of e1 & e2 in specific case
                 # Bug : 쉬고있는 엘리베이터의 가동전력을 계산하지 않음
-                # 소비전력계싼 함수 : 전 단계 문 닫힌 상태 ~ 다음단계 문 닫힌 상태
+                # 소비전력 예측 함수 : 전 단계 문 닫힌 상태 ~ 다음단계 문 닫힌 상태
                 def calculate_p(h1, h2, journey, weight_check):
                     direction = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(h1, h2)
                     weight = 0
