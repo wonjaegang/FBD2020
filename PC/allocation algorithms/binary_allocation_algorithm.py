@@ -77,7 +77,7 @@ class Building:
 
 class Elevator:
     speed = decimal.Decimal('0.1')  # 0.1m/loop
-    door_operating_time = 20  # loops that elevator should stay at arrived floor
+    door_operating_time = 19  # loops that elevator should stay at arrived floor
 
     def __init__(self, id_num, floor):  # initialize instance
         self.id_num = id_num
@@ -213,6 +213,16 @@ def input_to_call():
     #     data = b'F\r\n' # 3F cc0
     # if count == 1300:
     #     data = b'B\r\n' # 1F cc0
+
+    # 특수 상황
+    # if count == 100:
+    #     data = b'C\r\n'
+    # if count == 250:
+    #     data = b'C\r\n'
+    # if count == 251:
+    #     data = b'J\r\n'
+    # if count == 400:
+    #     data = b'D\r\n'
 
     # Convert to int starts from 0
     int_data = int.from_bytes(data, "little") - \
