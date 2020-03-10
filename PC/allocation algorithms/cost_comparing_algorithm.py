@@ -1,12 +1,11 @@
 import decimal
-# import serial
+import serial
 import sys
 import pygame
-import random
 import time
 import itertools
 
-# ardu = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
+ardu = serial.Serial(port='COM10', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
 loop_time = decimal.Decimal(0.1)
 
 # define variables for GUI screen
@@ -149,105 +148,62 @@ moved_distance = [[0, 0], [0, 0]]
 # Function that converts button inputs to the Car Calls and the Landing Calls
 # It modifies global variables
 def input_to_call():
-    # data = ardu.readline()
-    data = b''
-    # # Get to Work
-    # if count == 100:
-    #     data = b'C\r\n'
-    # if count == 101:
-    #     data = b'O\r\n'
-    # if count == 102:
-    #     data = b'P\r\n'
-    # if count == 150:
-    #     data = b'C\r\n'
-    # if count == 151:
-    #     data = b'T\r\n'
-    # if count == 250:
-    #     data = b'J\r\n'
-    # if count == 251:
-    #     data = b'L\r\n'
-    # if count == 300:
-    #     data = b'A\r\n'
-    # if count == 380:
-    #     data = b'S\r\n'
+    data = ardu.readline()
+    if data == b'\x00\r\n':
+        data = b''
+
+    # Get to Work
+    if count == 100:  # 1th -> destination: 4th, 5th
+        data = b'C\r\n'
+    if count == 150:  # 1th -> destination: 3th
+        data = b'C\r\n'
+    if count == 250:  # 5th -> destination: 1th
+        data = b'J\r\n'
+    if count == 260:  # 1th -> destination: 3th
+        data = b'C\r\n'
+    if count == 300:  # B1th -> destination: 2th
+        data = b'A\r\n'
 
     # # Get off Work
-    # if count == 100:
+    # if count == 100:  # 5th -> destination: 1th, B1th
     #     data = b'J\r\n'
-    # if count == 230:
-    #     data = b'Q\r\n'
-    # if count == 231:
-    #     data = b'R\r\n'
-    # if count == 120:
+    # if count == 120:  # 4th -> destination: 1th
     #     data = b'H\r\n'
-    # if count == 190:
-    #     data = b'L\r\n'
-    # if count == 200:
+    # if count == 200:  # 1th -> destination: 5th
     #     data = b'C\r\n'
-    # if count == 280:
-    #     data = b'P\r\n'
-    # if count == 240:
+    # if count == 240:  # 3th -> destination: 5th
     #     data = b'G\r\n'
-    # if count == 290:
-    #     data = b'V\r\n'
-    # if count == 300:
+    # if count == 300:  # 5th -> destination: 1th, B1th
     #     data = b'J\r\n'
-    # if count == 420:
-    #     data = b'K\r\n'
-    # if count == 421:
-    #     data = b'L\r\n'
 
     # # Lunch time
-    # if count == 100:
+    # if count == 100:  # 5th -> destination: 1th
     #     data = b'J\r\n'
-    # if count == 210:
-    #     data = b'R\r\n'
-    # if count == 101:
+    # if count == 101:  # 2th -> destination: 1th
     #     data = b'D\r\n'
-    # if count == 129:
-    #     data = b'L\r\n'
-    # if count == 130:
+    # if count == 130:  # 1th -> destination: 3th
     #     data = b'C\r\n'
-    # if count == 170:
-    #     data = b'O\r\n'
-    # if count == 180:
+    # if count == 180:  # 3th -> destination: 1th
     #     data = b'F\r\n'
-    # if count == 260:
-    #     data = b'L\r\n'
-    # if count == 181:
+    # if count == 181:  # 1th -> destination: 5th
     #     data = b'C\r\n'
-    # if count == 190:
-    #     data = b'P\r\n'
-    # if count == 240:
+    # if count == 240:  # 1th -> destination: 4th
     #     data = b'C\r\n'
-    # if count == 330:
-    #     data = b'U\r\n'
-    # if count == 300:
+    # if count == 300:  # 4th -> destination: B1th
     #     data = b'H\r\n'
-    # if count == 420:
-    #     data = b'K\r\n'
 
     # # Slack hours
-    # if count == 100:
+    # if count == 100:  # destination: 1th
     #     data = b'J\r\n'
-    # if count == 202:
-    #     data = b'L\r\n'
-    # if count == 400:
+    # if count == 400:  # destination: 4th
     #     data = b'C\r\n'
-    # if count == 402:
-    #     data = b'O\r\n'
-    # if count == 700:
+    # if count == 700:  # destination: B1th
     #     data = b'D\r\n'
-    # if count == 730:
-    #     data = b'Q\r\n'
-    # if count == 1000:
+    # if count == 1000:  # destination: 1th
     #     data = b'F\r\n'
-    # if count == 1030:
-    #     data = b'L\r\n'
-    # if count == 1300:
+    # if count == 1300:  # destination: B1th
     #     data = b'C\r\n'
-    # if count == 1310:
-    #     data = b'K\r\n'
+
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
     if int_data == int.from_bytes(bytes(), "little") - int.from_bytes(b'A\r\n', "little"):
@@ -298,9 +254,9 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Set weight values
-    w_time = decimal.Decimal(18)
-    w_power = decimal.Decimal(1)
-    w_consistency = decimal.Decimal(100)
+    w_time = decimal.Decimal(1)
+    w_power = decimal.Decimal(0)
+    w_consistency = decimal.Decimal(0)
     # assert (round(w_time + w_power + w_consistency, 1) == 1), "Sum of weight values is not 1"
 
     # Put lc / cc values to car_calls and lc_calls list
@@ -613,5 +569,5 @@ while True:
             sys.exit()
 
     pygame.display.update()
-    time.sleep(0.01)
+    # time.sleep(0.01)
     count = count + 1
