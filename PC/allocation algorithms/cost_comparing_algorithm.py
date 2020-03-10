@@ -377,7 +377,7 @@ def call_to_command(e1, e2):
                         cost_consistency += 1
                 # Elevator 2
                 if len(whole_cases2[case_num2]):
-                    location1 = e1.location
+                    location1 = e2.location
                     location2 = (whole_cases2[case_num2][0][0] - 1) * Building.floor_height
                     direction_next = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(location1, location2)
                     direction_variation = abs(e2.v_direction - direction_next)
