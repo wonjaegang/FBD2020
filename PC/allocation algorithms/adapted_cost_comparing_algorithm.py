@@ -262,10 +262,12 @@ def call_to_command(e1, e2):
     # Put lc / cc values to car_calls and lc_calls list
     car_calls = []
     lc_calls = [[], []]
+    cc_num = 0
     for floor in range(Building.whole_floor):
         for call_type in range(2):
             if cc[floor][call_type]:
-                car_calls.append([floor, "cc" + str(call_type)])
+                car_calls.append([floor, "cc" + str(call_type), cc_num])
+                cc_num += 1
     for id_num in range(2):
         for floor in range(Building.whole_floor):
             if lc[id_num][floor]:
@@ -278,9 +280,11 @@ def call_to_command(e1, e2):
     for slice_case in range(pow(2, len(car_calls))):
         calls = [[], []]
         # Change slice_case variable to binary number
-        # Put car_calls value to calls[[], []], referring to slice_case
+        # Put car_calls & virtual landing calls to calls[[], []], referring to slice_case, using binary number
         for i in range(len(car_calls)):
-            calls[int(format(slice_case, 'b').zfill(len(car_calls))[i])].append(car_calls[i])
+            e_num = int(format(slice_case, 'b').zfill(len(car_calls))[i])
+            calls[e_num].append(car_calls[i])
+            calls[e_num].append([car_calls[i][0] + int(car_calls[i][1][2]) * 2 - 1, "virtual_lc", car_calls[i][2]])
         # Put lc_calls to calls[[], []]
         for id_num in range(2):
             calls[id_num] += lc_calls[id_num]
@@ -289,10 +293,30 @@ def call_to_command(e1, e2):
         # Put every case of e1's move into whole_cases1, as tuple, using permutation iterator
         whole_cases1 = list(itertools.permutations(calls[0], len(calls[0])))
         for case_num1 in range(len(whole_cases1)):
+            # Ignore the case in which virtual lc is ordered before corresponding car call.
+            cc_list = [0 for i in range(cc_num)]  # array to check the order of cc / virtual_lc
+            for order in range(len(whole_cases1[case_num1])):
+                if len(whole_cases1[case_num1][order]) == 3:
+                    if whole_cases1[case_num1][order][1] == "virtual_lc":
+                        cc_list[whole_cases1[case_num1][order][2]] *= 0
+                    else:
+                        cc_list[whole_cases1[case_num1][order][2]] += 1
+            if sum(cc_list):
+                continue
             # Put every case of e2's move into whole_cases2, as tuple, using permutation iterator
-            # -> total number of cases : car_call slice case * e1's move case * e2's move case
             whole_cases2 = list(itertools.permutations(calls[1], len(calls[1])))
             for case_num2 in range(len(whole_cases2)):
+                # Ignore the case in which virtual lc is ordered before corresponding car call.
+                cc_list = [0 for i in range(cc_num)]  # array to check the order of cc / virtual_lc
+                for order in range(len(whole_cases2[case_num2])):
+                    if len(whole_cases2[case_num2][order]) == 3:
+                        if whole_cases2[case_num2][order][1] == "virtual_lc":
+                            cc_list[whole_cases2[case_num2][order][2]] *= 0
+                        else:
+                            cc_list[whole_cases2[case_num2][order][2]] += 1
+                if sum(cc_list):
+                    continue
+
                 cost_time = 0
                 cost_power = 0
                 cost_consistency = 0
@@ -301,23 +325,30 @@ def call_to_command(e1, e2):
                 # Bug : 층에 도착하여 문이 열려있는 상태에서, 동일한 층의 car call 이 들어오면
                 #       현재의 opening sequence 를 무시해야하지만, 무시하지 않음
                 # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
+                # The number of waiting passengers == the number of calls except cc (lc num + vlc num)
+                def waiting_passengers(starting, target_list):
+                    pss_num = 0
+                    for n in range(starting, len(target_list)):
+                        if not target_list[n][1][:2] == "cc":
+                            pss_num += 1
+                    return pss_num
                 if len(whole_cases1[case_num1]):
                     # Waiting time from current location & opening sequence to first destination
                     cost_time += (abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
-                                  + e1.opening_sequence * loop_time) * len(whole_cases1[case_num1])
+                                  + e1.opening_sequence * loop_time) * waiting_passengers(0, whole_cases1[case_num1])
                     # Waiting time from second destination to last destination
                     for i in range(len(whole_cases1[case_num1]) - 1):
                         cost_time += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
                                       * Building.floor_height + Elevator.door_operating_time * loop_time) \
-                                      * (len(whole_cases1[case_num1]) - 1 - i)
+                                      * waiting_passengers(i + 1, whole_cases1[case_num1])
                 # e2 : Just same with e1
                 if len(whole_cases2[case_num2]):
                     cost_time += (abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
-                                  + e2.opening_sequence * loop_time) * len(whole_cases2[case_num2])
+                                  + e2.opening_sequence * loop_time) * waiting_passengers(0, whole_cases2[case_num2])
                     for i in range(len(whole_cases2[case_num2]) - 1):
                         cost_time += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
                                       * Building.floor_height + Elevator.door_operating_time * loop_time) \
-                                      * (len(whole_cases2[case_num2]) - 1 - i)
+                                      * waiting_passengers(i + 1, whole_cases2[case_num2])
 
                 # Calculate estimated power consumption of e1 & e2 in specific case
                 # Bug : 쉬고있는 엘리베이터의 가동전력을 계산하지 않음
@@ -377,7 +408,7 @@ def call_to_command(e1, e2):
                         cost_consistency += 1
                 # Elevator 2
                 if len(whole_cases2[case_num2]):
-                    location1 = e1.location
+                    location1 = e2.location
                     location2 = (whole_cases2[case_num2][0][0] - 1) * Building.floor_height
                     direction_next = (lambda f1, f2: 1 if (f2 > f1) else (-1 if (f1 > f2) else 0))(location1, location2)
                     direction_variation = abs(e2.v_direction - direction_next)
