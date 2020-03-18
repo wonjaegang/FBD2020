@@ -5,7 +5,7 @@ import pygame
 import time
 import itertools
 
-ardu = serial.Serial(port='COM10', baudrate=9600, timeout=0.1)  # revise port's name for each PC after
+ardu = serial.Serial(port='COM10', baudrate=9600, timeout=0.03)  # revise port's name for each PC after
 loop_time = decimal.Decimal(0.1)
 
 # define variables for GUI screen
@@ -152,17 +152,17 @@ def input_to_call():
     if data == b'\x00\r\n':
         data = b''
 
-    # Get to Work
-    if count == 100:  # 1th -> destination: 4th, 5th
-        data = b'C\r\n'
-    if count == 150:  # 1th -> destination: 3th
-        data = b'C\r\n'
-    if count == 250:  # 5th -> destination: 1th
-        data = b'J\r\n'
-    if count == 260:  # 1th -> destination: 3th
-        data = b'C\r\n'
-    if count == 300:  # B1th -> destination: 2th
-        data = b'A\r\n'
+    # # Get to Work
+    # if count == 100:  # 1th -> destination: 4th, 5th
+    #     data = b'C\r\n'
+    # if count == 150:  # 1th -> destination: 3th
+    #     data = b'C\r\n'
+    # if count == 250:  # 5th -> destination: 1th
+    #     data = b'J\r\n'
+    # if count == 260:  # 1th -> destination: 3th
+    #     data = b'C\r\n'
+    # if count == 300:  # B1th -> destination: 2th
+    #     data = b'A\r\n'
 
     # # Get off Work
     # if count == 100:  # 5th -> destination: 1th, B1th
@@ -181,7 +181,7 @@ def input_to_call():
     #     data = b'J\r\n'
     # if count == 101:  # 2th -> destination: 1th
     #     data = b'D\r\n'
-    # if count == 130:  # 1th -> destination: 3th
+    # if count == 130:  # 1th -> destination: 4th
     #     data = b'C\r\n'
     # if count == 180:  # 3th -> destination: 1th
     #     data = b'F\r\n'
@@ -192,17 +192,17 @@ def input_to_call():
     # if count == 300:  # 4th -> destination: B1th
     #     data = b'H\r\n'
 
-    # # Slack hours
-    # if count == 100:  # destination: 1th
-    #     data = b'J\r\n'
-    # if count == 400:  # destination: 4th
-    #     data = b'C\r\n'
-    # if count == 700:  # destination: B1th
-    #     data = b'D\r\n'
-    # if count == 1000:  # destination: 1th
-    #     data = b'F\r\n'
-    # if count == 1300:  # destination: B1th
-    #     data = b'C\r\n'
+    # Slack hours
+    if count == 100:  # 5th -> destination: 1th
+        data = b'J\r\n'
+    if count == 400:  # 1th -> destination: 4th
+        data = b'C\r\n'
+    if count == 700:  # 2th -> destination: B1th
+        data = b'D\r\n'
+    if count == 1000:  # 3th -> destination: 1th
+        data = b'F\r\n'
+    if count == 1300:  # 1th -> destination: B1th
+        data = b'C\r\n'
 
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
@@ -254,8 +254,8 @@ def call_to_command(e1, e2):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Set weight values
-    w_time = decimal.Decimal(1)
-    w_power = decimal.Decimal(0)
+    w_time = decimal.Decimal(16)
+    w_power = decimal.Decimal(1)
     w_consistency = decimal.Decimal(0)
     # assert (round(w_time + w_power + w_consistency, 1) == 1), "Sum of weight values is not 1"
 
@@ -298,26 +298,30 @@ def call_to_command(e1, e2):
                 cost_consistency = 0
 
                 # Calculate estimated waiting time of passengers in specific case
-                # Bug : 층에 도착하여 문이 열려있는 상태에서, 동일한 층의 car call 이 들어오면
-                #       현재의 opening sequence 를 무시해야하지만, 무시하지 않음
                 # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
+                # 각 단계의 대기시간 : 전 단계 도착 직후(문 열리기 전) ~ 다음 단계 도착 직후(문 열리기 전)
+                # 같은 층에서 입력이 들어오는 경우, opening sequence 를 다시 고려할 필요가 없으므로 대기시간 증가X
                 if len(whole_cases1[case_num1]):
-                    # Waiting time from current location & opening sequence to first destination
-                    cost_time += (abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
-                                  + e1.opening_sequence * loop_time) * len(whole_cases1[case_num1])
+                    if not e1.location == (whole_cases1[case_num1][0][0] - 1) * Building.floor_height:
+                        # Waiting time from current location & opening sequence to first destination
+                        cost_time += (abs(e1.location - (whole_cases1[case_num1][0][0] - 1) * Building.floor_height)
+                                      + e1.opening_sequence * loop_time) * len(whole_cases1[case_num1])
                     # Waiting time from second destination to last destination
                     for i in range(len(whole_cases1[case_num1]) - 1):
-                        cost_time += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
-                                      * Building.floor_height + Elevator.door_operating_time * loop_time) \
-                                      * (len(whole_cases1[case_num1]) - 1 - i)
+                        if not whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0]:
+                            cost_time += (abs(whole_cases1[case_num1][i][0] - whole_cases1[case_num1][i + 1][0])
+                                          * Building.floor_height + Elevator.door_operating_time * loop_time) \
+                                          * (len(whole_cases1[case_num1]) - 1 - i)
                 # e2 : Just same with e1
                 if len(whole_cases2[case_num2]):
-                    cost_time += (abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
-                                  + e2.opening_sequence * loop_time) * len(whole_cases2[case_num2])
+                    if not e2.location == (whole_cases2[case_num2][0][0] - 1) * Building.floor_height:
+                        cost_time += (abs(e2.location - (whole_cases2[case_num2][0][0] - 1) * Building.floor_height)
+                                      + e2.opening_sequence * loop_time) * len(whole_cases2[case_num2])
                     for i in range(len(whole_cases2[case_num2]) - 1):
-                        cost_time += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
-                                      * Building.floor_height + Elevator.door_operating_time * loop_time) \
-                                      * (len(whole_cases2[case_num2]) - 1 - i)
+                        if not whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0]:
+                            cost_time += (abs(whole_cases2[case_num2][i][0] - whole_cases2[case_num2][i + 1][0])
+                                          * Building.floor_height + Elevator.door_operating_time * loop_time) \
+                                          * (len(whole_cases2[case_num2]) - 1 - i)
 
                 # Calculate estimated power consumption of e1 & e2 in specific case
                 # Bug : 쉬고있는 엘리베이터의 가동전력을 계산하지 않음

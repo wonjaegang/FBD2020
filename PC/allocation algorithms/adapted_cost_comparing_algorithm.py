@@ -321,10 +321,10 @@ def call_to_command(e1, e2):
                 cost_consistency = 0
 
                 # Calculate estimated waiting time of passengers in specific case
-                # Bug : 층에 도착하여 문이 열려있는 상태에서, 동일한 층의 car call 이 들어오면
-                #       현재의 opening sequence 를 무시해야하지만, 무시하지 않음
                 # Be aware of increase rate of waiting time : more waiting passengers, faster it increases
                 # The number of waiting passengers == the number of calls except cc (lc num + vlc num)
+                # 각 단계의 대기시간 : 전 단계 도착 직후(문 열리기 전) ~ 다음 단계 도착 직후(문 열리기 전)
+                # 같은 층에서 입력이 들어오는 경우, opening sequence 를 다시 고려할 필요가 없으므로 대기시간 증가X
                 def waiting_pax(starting, target_list):
                     pss_num = 0
                     for n in range(starting, len(target_list)):
