@@ -152,17 +152,17 @@ def input_to_call():
     if data == b'\x00\r\n':
         data = b''
 
-    # # Get to Work
-    # if count == 100:  # 1th -> destination: 4th, 5th
-    #     data = b'C\r\n'
-    # if count == 150:  # 1th -> destination: 3th
-    #     data = b'C\r\n'
-    # if count == 250:  # 5th -> destination: 1th
-    #     data = b'J\r\n'
-    # if count == 260:  # 1th -> destination: 3th
-    #     data = b'C\r\n'
-    # if count == 300:  # B1th -> destination: 2th
-    #     data = b'A\r\n'
+    # Get to Work
+    if count == 100:  # 1th -> destination: 4th, 5th
+        data = b'C\r\n'
+    if count == 150:  # 1th -> destination: 3th
+        data = b'C\r\n'
+    if count == 250:  # 5th -> destination: 1th
+        data = b'J\r\n'
+    if count == 260:  # 1th -> destination: 3th
+        data = b'C\r\n'
+    if count == 300:  # B1th -> destination: 2th
+        data = b'A\r\n'
 
     # # Get off Work
     # if count == 100:  # 5th -> destination: 1th, B1th
@@ -192,17 +192,17 @@ def input_to_call():
     # if count == 300:  # 4th -> destination: B1th
     #     data = b'H\r\n'
 
-    # Slack hours
-    if count == 100:  # 5th -> destination: 1th
-        data = b'J\r\n'
-    if count == 400:  # 1th -> destination: 4th
-        data = b'C\r\n'
-    if count == 700:  # 2th -> destination: B1th
-        data = b'D\r\n'
-    if count == 1000:  # 3th -> destination: 1th
-        data = b'F\r\n'
-    if count == 1300:  # 1th -> destination: B1th
-        data = b'C\r\n'
+    # # Slack hours
+    # if count == 100:  # 5th -> destination: 1th
+    #     data = b'J\r\n'
+    # if count == 400:  # 1th -> destination: 4th
+    #     data = b'C\r\n'
+    # if count == 700:  # 2th -> destination: B1th
+    #     data = b'D\r\n'
+    # if count == 1000:  # 3th -> destination: 1th
+    #     data = b'F\r\n'
+    # if count == 1300:  # 1th -> destination: B1th
+    #     data = b'C\r\n'
 
     int_data = int.from_bytes(data, "little") - int.from_bytes(b'A\r\n', "little")  # Convert to int starts from 0
     # If input data is None
@@ -246,9 +246,9 @@ def call_to_command(e1, e2):
     #
     # Cost comparing algorithm :
     #      Simulate every number of cases and calculate the cost of each case. Select the case that has lowest cost.
-    #           cost_time :
-    #           cost_power :
-    #           cost_consistency :
+    #           cost_time
+    #           cost_power
+    #           cost_consistency
     #           cost_total = cost_time * Wt + cost_power * Wp + cost_consistency * Wc
     #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

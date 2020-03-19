@@ -244,11 +244,11 @@ def call_to_command(e1, e2):
     #                                             #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     #
-    # Cost comparing algorithm :
+    #  Adapted Cost comparing algorithm :
     #      Simulate every number of cases and calculate the cost of each case. Select the case that has lowest cost.
-    #           cost_time :
-    #           cost_power :
-    #           cost_consistency :
+    #           cost_time
+    #           cost_power
+    #           cost_consistency
     #           cost_total = cost_time * Wt + cost_power * Wp + cost_consistency * Wc
     #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
